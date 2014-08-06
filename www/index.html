@@ -33,12 +33,14 @@
         <div class="app">
             <h1>DragonFlyers</h1>
             <div>
-	      <p>One time:</p>
+<!-- 	      <p>One time:</p>
 	      <p id="geolocation">Not set yet</p>
-	      <p>Watch:</p>
+ -->	      
+ 		<p>GPS beacon:</p>
 	      <p id="geolocationWatch">Not set yet</p>
-	      <p>Serving to: <span id="hostSpan">not set yet</span>:8020</p>
-	      <input id="hostInput" type="text" placeholder="Host" value="192.168.0.107" />
+	      <p>Serving to: <span id="hostSpan">not set yet</span></p>
+	      <p><input id="hostInput" type="text" placeholder="Host" value="gpslog-dr4g0n.rhcloud.com" /></p>
+	      <p><input id="portInput" type="text" placeholder="Port" value="80" /></p>
 	      <p>POST feedback: <span id="postFeedbackSpan"></span></p>
 	      <p>Server said: <span id="serverSaidSpan"></span></p>
             </div>
@@ -59,24 +61,24 @@
     // Cordova is ready
     //
     function onDeviceReady() {
-        navigator.geolocation.getCurrentPosition(onSuccess, onError);
+        navigator.geolocation.getCurrentPosition(onWatchSuccess, onError);
         var options = {  maximumAge: 250, timeout: 5000, enableHighAccuracy: true };
         watchID = navigator.geolocation.watchPosition(onWatchSuccess, onError, options);
     }
 
     // onSuccess Geolocation
     //
-    function onSuccess(position) {
-        var element = document.getElementById('geolocation');
-        element.innerHTML = 'Latitude: '           + position.coords.latitude              + '<br />' +
-                            'Longitude: '          + position.coords.longitude             + '<br />' +
-                            'Altitude: '           + position.coords.altitude              + '<br />' +
-                            'Accuracy: '           + position.coords.accuracy              + '<br />' +
-                            'Altitude Accuracy: '  + position.coords.altitudeAccuracy      + '<br />' +
-                            'Heading: '            + position.coords.heading               + '<br />' +
-                            'Speed: '              + position.coords.speed                 + '<br />' +
-                            'Timestamp: '          + position.timestamp          + '<br />';
-    }
+    // function onSuccess(position) {
+    //     var element = document.getElementById('geolocation');
+    //     element.innerHTML = 'Latitude: '           + position.coords.latitude              + '<br />' +
+    //                         'Longitude: '          + position.coords.longitude             + '<br />' +
+    //                         'Altitude: '           + position.coords.altitude              + '<br />' +
+    //                         'Accuracy: '           + position.coords.accuracy              + '<br />' +
+    //                         'Altitude Accuracy: '  + position.coords.altitudeAccuracy      + '<br />' +
+    //                         'Heading: '            + position.coords.heading               + '<br />' +
+    //                         'Speed: '              + position.coords.speed                 + '<br />' +
+    //                         'Timestamp: '          + position.timestamp          + '<br />';
+    // }
     
     function onWatchSuccess(position) {
         var element = document.getElementById('geolocationWatch');
@@ -89,37 +91,32 @@
                             'Speed: '              + position.coords.speed                 + '<br />' +
                             'Timestamp: '          + position.timestamp          + '<br />' +
                             'Update: '          + watchUpdate          + '<br />';
-	
-	
-	var host = document.getElementById('hostInput');
-	document.getElementById('hostSpan').innerHTML = host.value;
-	watchUpdate += 1;
-	doHttpGetCall(position, host.value, watchUpdate - 1);
-	
-	
-	
+		var host = document.getElementById('hostInput');
+		var port = document.getElementById('portInput');
+		document.getElementById('hostSpan').innerHTML = host.value;
+		watchUpdate += 1;
+		doHttpGetCall(position, host.value, port.value, watchUpdate - 1);
     }
     
-    function doHttpGetCall(position, host, idx) {
+    function doHttpGetCall(position, host, port, idx) {
     
-    console.log(position);
+    	console.log(position);
     
-    document.getElementById('postFeedbackSpan').innerHTML = "Post sched " + idx;
+    	document.getElementById('postFeedbackSpan').innerHTML = "Post sched " + idx;
     
-      $.ajax({
-	  url: "http://" + host + ":8020/updatePosition",
-	  type: "POST",
-	  data: JSON.stringify(position),
-	  success: function(data) {
-	    document.getElementById('postFeedbackSpan').innerHTML = "Done" + idx;
-	    document.getElementById('serverSaidSpan').innerHTML = data;
-	  },
-	  error: function( xhr, status, errorThrown ) {
-	    document.getElementById('postFeedbackSpan').innerHTML = "Problem!" + idx + ":" + errorThrown + " - Status: " + status + " " +  JSON.stringify(xhr, null, 2);;
-	  },
-	  dataType: "text"
-	});
-    
+     	$.ajax({
+	 	url: "http://" + host + ":" + port +"/updatePosition/",
+		type: "POST",
+		data: JSON.stringify(position),
+			success: function(data) {
+	    		document.getElementById('postFeedbackSpan').innerHTML = "Done" + idx;
+	    		document.getElementById('serverSaidSpan').innerHTML = data;
+	  		},
+	  		error: function( xhr, status, errorThrown ) {
+	    		document.getElementById('postFeedbackSpan').innerHTML = "Problem!" + idx + ":" + errorThrown + " - Status: " + status + " " +  JSON.stringify(xhr, null, 2);;
+	  		},
+	  	dataType: "text"
+		});
     }
     
 
