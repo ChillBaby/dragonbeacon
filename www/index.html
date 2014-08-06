@@ -107,9 +107,9 @@
      	$.ajax({
 	 	url: "http://" + host + ":" + port +"/updatePosition/",
 		type: "POST",
-		data: JSON.stringify(position),
+		data: position,
 			success: function(data) {
-	    		document.getElementById('postFeedbackSpan').innerHTML = "Done" + idx;
+	    		document.getElementById('postFeedbackSpan').innerHTML = "Done " + idx;
 	    		document.getElementById('serverSaidSpan').innerHTML = data;
 	  		},
 	  		error: function( xhr, status, errorThrown ) {
