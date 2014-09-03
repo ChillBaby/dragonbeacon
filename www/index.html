@@ -31,13 +31,13 @@
 
     <ons-tabbar-item
       label="Camera"
-      icon="images"
+      icon="ion-images"
       page="page2.html">
     </ons-tabbar-item>
 
     <ons-tabbar-item
       label="Location"
-      icon="ios7-location"
+      icon="ion-ios7-location"
       page="page5.html">
     </ons-tabbar-item>
 
@@ -51,13 +51,20 @@
   <script type="text/ons-template" id="page1.html">
     <ons-navigator>
       <ons-toolbar>
-        <div class="center">Camera</div>
+        <div class="center">Home</div>
       </ons-toolbar>
       <ons-page>
         <ons-row style="margin-top: 100px;">
           <ons-col align="center">
             <ons-button modifier="light" ng-click="ons.navigator.pushPage('page4.html')">
-              Push New Page
+              Capture Image
+            </ons-button>
+          </ons-col>
+        </ons-row>
+        <ons-row style="margin-top: 100px;">
+          <ons-col align="center">
+            <ons-button modifier="light">
+              Capture Video
             </ons-button>
           </ons-col>
         </ons-row>
