@@ -54,6 +54,12 @@
         <div class="center">Home</div>
       </ons-toolbar>
       <ons-page>
+		<script>
+		function changed() {
+		  alert(mySwitch.isChecked() ? 'ON' : 'OFF');
+		}
+		</script>
+		<ons-switch var="mySwitch" onchange="changed()"></ons-switch>	  
         <ons-row style="margin-top: 100px;">
           <ons-col align="center">
             <ons-button modifier="light" ng-click="ons.navigator.pushPage('page4.html')">
