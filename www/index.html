@@ -31,7 +31,24 @@
 	//
 	function querySuccess(tx, results) {	
 		var len = results.rows.length;
+		var httpUrl = "";
+		var refreshRate = "";
 		alert("DRAGONFLYER table: " + len + " rows found.");
+		if (len == 0) {
+			tx.executeSql('INSERT INTO DRAGONFLYER (key, value) VALUES ("httpUrl", "http://test.com/test")');
+			tx.executeSql('INSERT INTO DRAGONFLYER (key, value) VALUES ("refreshrate", "123")');			
+			httpUrl = "http://test.com/test";
+			refershRate = "123";
+		} else {
+			for (var i=0; i<len; i++) {
+				alert("Row = " + i + " KEY = " + results.rows.item(i).key + " value =  " + results.rows.item(i).value);		
+				if (results.rows.item(i).key == "httpUrl") {
+				    httpUrl = results.rows.item(i).value;
+				} else {
+				    refershRate = results.rows.item(i).value;
+				}
+			}	
+		}
 	}
 
     // Populate the database 
@@ -39,8 +56,6 @@
     function initDB(tx) {
         tx.executeSql('CREATE TABLE IF NOT EXISTS DRAGONFLYER (key unique, value)');
 		tx.executeSql('SELECT * FROM DRAGONFLYER', [], querySuccess, errorCB);
-        //tx.executeSql('INSERT INTO DEMO (key, value) VALUES ("httpUrl", "http://test.com/test")');
-        //tx.executeSql('INSERT INTO DEMO (key, value) VALUES ("refreshrate", "123")');
     }
 
     // Transaction error callback
