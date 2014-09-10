@@ -17,11 +17,53 @@
   <script src="cordova.js"></script>
   <script src="js/app.js"></script> 
   
-  	<script>
-		function changed() {
-		  alert(mySwitch.isChecked() ? 'ON' : 'OFF');
+  <script>
+    // Call onDeviceReady when PhoneGap is loaded.
+    //
+    // At this point, the document has loaded but phonegap-1.0.0.js has not.
+    // When PhoneGap is loaded and talking with the native device,
+    // it will call the event `deviceready`.
+    // 
+    document.addEventListener("deviceready", onDeviceReady, false);
+
+	
+	// init database 
+	//
+	function querySuccess(tx, results) {	
+		var len = results.rows.length;
+		alert("DRAGONFLYER table: " + len + " rows found.");
+	}
+
+    // Populate the database 
+    //
+    function initDB(tx) {
+        tx.executeSql('CREATE TABLE IF NOT EXISTS DRAGONFLYER (key unique, value)');
+		tx.executeSql('SELECT * FROM DRAGONFLYER', [], querySuccess, errorCB);
+        //tx.executeSql('INSERT INTO DEMO (key, value) VALUES ("httpUrl", "http://test.com/test")');
+        //tx.executeSql('INSERT INTO DEMO (key, value) VALUES ("refreshrate", "123")');
+    }
+
+    // Transaction error callback
+    //
+    function errorCB(err) {
+        alert("Error processing SQL: "+err);
+    }
+	
+    // PhoneGap is loaded and it is now safe to make calls PhoneGap methods
+    //
+    function onDeviceReady() {
+        var db = window.openDatabase("dragonflyer", "1.0", "dragonflyer DB", 1000000);
+		db.transaction(initDB, errorCB);
+    }  
+  
+	function changed() {
+		if (mySwitch.isChecked()) {
+			document.getElementById("drone_arm_switch").innerHTML = "ON";
+		} else {
+			document.getElementById("drone_arm_switch").innerHTML = "OFF";
 		}
-	</script>	
+	}
+  </script>	
 </head>
 
 <body>    
@@ -97,6 +139,11 @@
       <ons-toolbar>
         <div class="center">Settings</div>
       </ons-toolbar>
+	  <ons-row>
+		<ons-col>
+			
+		</ons-col>
+	  </ons-row>
     </ons-page>
   </script>
 
