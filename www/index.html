@@ -73,9 +73,11 @@
   
 	function changed() {
 		if (mySwitch.isChecked()) {
-			document.getElementById("drone_arm_switch").innerHTML = "ON";
+			document.getElementById("drone_arm_switch").style.color = "#FF0000";
+			document.getElementById("drone_arm_switch").innerHTML = "Armed";
 		} else {
-			document.getElementById("drone_arm_switch").innerHTML = "OFF";
+			document.getElementById("drone_arm_switch").style.color = "#00FF00";
+			document.getElementById("drone_arm_switch").innerHTML = "Offline";
 		}
 	}
   </script>	
@@ -116,10 +118,9 @@
         <div class="center">Home</div>
       </ons-toolbar>
       <ons-page>
-        <ons-row style="margin-top: 50px;margin-right: 5px;margin-bottom: 5px;margin-left: 5px">
+        <ons-row style="margin-top: 40px;margin-right: 20px;margin-bottom: 5px;margin-left: 20px">
           <ons-col align="right">
-		    <div id="drone_arm_switch">Off</div>
-			<ons-switch var="mySwitch" onchange="changed()"></ons-switch>	  
+			<ons-switch var="mySwitch" onchange="changed()"><div id="drone_arm_switch">Offline</div></ons-switch>	  
 		  </ons-col>
 		</ons-row>
         <ons-row style="margin-top: 50px;margin-right: 5px;margin-bottom: 5px;margin-left: 5px">
@@ -156,7 +157,7 @@
       </ons-toolbar>
 	  <ons-row>
 		<ons-col>
-			
+			<div>123calimero</div>
 		</ons-col>
 	  </ons-row>
     </ons-page>
