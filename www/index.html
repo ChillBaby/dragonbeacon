@@ -59,20 +59,20 @@
         <div class="center">Home</div>
       </ons-toolbar>
       <ons-page>
-        <ons-row style="margin-top: 100px;">
+        <ons-row style="margin-top: 50px;margin-right: 5px;margin-bottom: 5px;margin-left: 5px">
           <ons-col align="right">
-		    <ons-switch align="right" var="mySwitch" onchange="changed()">
+		    <div id="drone_arm_switch">Off</div><ons-switch var="mySwitch" onchange="changed()">
 		  </ons-col>
 		</ons-row>
 		</ons-switch>	  
-        <ons-row>
+        <ons-row style="margin-top: 50px;margin-right: 5px;margin-bottom: 5px;margin-left: 5px">
           <ons-col align="center">
             <ons-button modifier="light" ng-click="ons.navigator.pushPage('page4.html')">
               Capture Image
             </ons-button>
           </ons-col>
         </ons-row>
-        <ons-row>
+        <ons-row style="margin-top: 50px;margin-right: 5px;margin-bottom: 5px;margin-left: 5px">
           <ons-col align="center">
             <ons-button modifier="light">
               Capture Video
