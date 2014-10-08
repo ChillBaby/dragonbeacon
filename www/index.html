@@ -126,7 +126,7 @@
 		myNavigator.geolocation.getCurrentPosition(onGeoLocationSuccess, onGeoLocationError);
         var options = {  maximumAge: 250, timeout: 5000, enableHighAccuracy: true };
         watchID = myNavigator.geolocation.watchPosition(onGeoLocationSuccess, onGeoLocationError, options);
-		window.plugins.insomnia.keepAwake();
+		//window.plugins.insomnia.keepAwake();
 		updateConsole("[INIT] geoLocation");
 	}	
 	
