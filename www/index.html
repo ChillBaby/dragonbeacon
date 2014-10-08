@@ -165,6 +165,7 @@
 	
 	function executeArmed() {
 		updateStatus("Armed","#33CC33","200");
+		executeEnableFlightButtons();
 	}
 	
 	function executeDisarming() {
@@ -173,22 +174,35 @@
 		transitionController();
 	}
 	
-	function executeEnableFlightButtons() {
+	function executeDisableFlightButtons() {
+		updateConsole("buttons Disabled");
+		document.getElementById("btnHoover").disabled  = true;
+		document.getElementById("btnLand").disabled  = true;
+		document.getElementById("btnFollowMe").disabled  = true;
+		document.getElementById("btnEmergency").disabled  = true;	
 	}
 	
-	function executeDisbaleFlightButtons() {
+	function executeEnableFlightButtons() {
+		updateConsole("buttons Enabled");
+		document.getElementById("btnHoover").disabled  = false;
+		document.getElementById("btnLand").disabled  = false;
+		document.getElementById("btnFollowMe").disabled  = false;
+		document.getElementById("btnEmergency").disabled  = false;	
 	}
 	
 	function executeDisarmed() {
 		updateStatus("Disarmed","#C0C0C0","normal");
+		executeDisableFlightButtons();
+	}
+
+	function updateConsole(consoleText) {
+		oldInnerHtml = document.getElementById("console_output").innerHTML;
+		document.getElementById("console_output").innerHTML = consoleText + '\r' + oldInnerHtml;
 	}
 	
-	// 
-	// 
 	function transitionController() {
 	
-		oldInnerHtml = document.getElementById("console_output").innerHTML;
-		document.getElementById("console_output").innerHTML = "transitioning from " + currentState + " to " + currentTransition + '\r' + oldInnerHtml;
+		updateConsole("transitioning from " + currentState + " to " + currentTransition);
 		currentState = currentTransition;
 
 		if (currentTransition == "arming") {
@@ -265,10 +279,11 @@
 		<ons-row>
 			<ons-col>
 				<div id="main_controller" style="width:100%">
-					<button id="btnHoover" class="button--cta" style="width:47%; align: center; margin: 5px" >Hoover</button>
-					<button id="btnLand" class="button--cta" style="width:46%; align: center; margin: 5px" >Land</button>
-					<button id="btnFollowMe" class="button--cta" style="width:95%; height:50px; align: center; margin: 5px" >Follow Me</button>
-					<button id="btnEmergency" class="button--cta" style="width:95%; height: 50px; background-color: red; align: center; margin: 5px" >Emergency stop</button>
+					<button id="btnHoover" class="button--cta" style="width:95%; align: center; margin: 5px" disabled>Hoover</button>
+					<button id="btnLand" class="button--cta" style="width:95%; align: center; margin: 5px"  disabled>Land</button>
+					<button id="btnFollowMe" class="button--cta" style="width:95%; height:50px; align: center; margin: 5px"  disabled>Follow Me</button>
+					<div style="height: 50px"></div>
+					<button id="btnEmergency" class="button--cta" style="width:95%; height: 50px; background-color: red; align: center; margin: 5px"  disabled>Emergency stop</button>
 				</div>		
 			</ons-col>
 		</ons-row>
