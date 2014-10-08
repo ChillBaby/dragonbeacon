@@ -69,6 +69,20 @@
 			recordingOnGoing = false;
 		} else {
 			/*
+			$.ajax({
+				url: httpUrl + "/startRecording",
+				type: "GET",
+				//data: position,
+				success: function(data) {
+					updateConsole("[GET] " + watchUpdate +  ":" + data);
+				},
+				error: function( xhr, status, errorThrown ) {
+					updateConsole("[GET-ERR] " + watchUpdate +  ":" + errorThrown + " - Status: " + status + " " +  JSON.stringify(xhr, null, 2));
+				},
+				dataType: "text"
+			});		
+			*/
+			/*
 			$.get(httpUrl + "/startRecording", function(data){
 				alert("Data: " + data);
 				if (data.status == "OK") {
@@ -158,7 +172,7 @@
 			});
 			*/
 			currentState = "hoover";
-		}  else if ((currentState == "hoover") || (currentState == "loiter")) {
+		}  else if ((currentState == "hoover") || (currentState == "loiter") || (currentState == "followme")) {
 			/*
 			$.get(httpUrl + "/land", function(data){
 				alert("Data: " + data);
@@ -337,7 +351,11 @@
 	}
 	
 	function updateFlightButtons() {
-		document.getElementById('drone_arm_switch').innerHTML = 'Armed';
+		if (recordingOnGoing) {
+			document.getElementById('drone_arm_switch').innerHTML = 'Armed (recording...)';
+		} else {
+			document.getElementById('drone_arm_switch').innerHTML = 'Armed';
+		}
 		if (currentState == "armed") {
 			document.getElementById("droneArmSwitch").disabled = false;
 			document.getElementById("droneArmSwitch").checked = true;
@@ -356,7 +374,11 @@
 		} else if (currentState == "disarmed") {
 			document.getElementById("droneArmSwitch").disabled = false;
 			document.getElementById("droneArmSwitch").checked = false;
-			document.getElementById('drone_arm_switch').innerHTML = 'Disarmed';
+			if (recordingOnGoing) {
+				document.getElementById('drone_arm_switch').innerHTML = 'Disarmed (recording...)';
+			} else {
+				document.getElementById('drone_arm_switch').innerHTML = 'Disarmed';
+			}
 
 			document.getElementById("btnHoover").disabled  = true;
 			document.getElementById("btnFollowMe").disabled  = true;
