@@ -123,9 +123,10 @@
 	// Initialize application
 	//
 	function initApp() {
-		navigator.geolocation.getCurrentPosition(onGeoLocationSuccess, onGeoLocationError);
+		myNavigator.geolocation.getCurrentPosition(onGeoLocationSuccess, onGeoLocationError);
         var options = {  maximumAge: 250, timeout: 5000, enableHighAccuracy: true };
-        watchID = navigator.geolocation.watchPosition(onGeoLocationSuccess, onGeoLocationError, options);
+        watchID = myNavigator.geolocation.watchPosition(onGeoLocationSuccess, onGeoLocationError, options);
+		window.plugins.insomnia.keepAwake();
 		updateConsole("[INIT] geoLocation");
 	}	
 	
