@@ -39,6 +39,7 @@
 	var lastPosition = null;
 	var logBuffer = "";
 	var actionOnGoing = false;
+	var recordingOnGoing = false;
   
     // Call onDeviceReady when PhoneGap is loaded.
     //
@@ -48,6 +49,39 @@
     // 
     document.addEventListener("deviceready", onDeviceReady, false);
 
+	function handleRecording() {
+		if (actionOnGoing) {
+			updateConsole("[WARNING] Action ongoing!");
+			return;
+		}
+		actionOnGoing = true;
+		if (recordingOnGoing) {
+			/*
+			$.get(httpUrl + "/stopRecording", function(data){
+				alert("Data: " + data);
+				if (data.status == "OK") {
+					updateConsole("[MAVLINK] Armed");
+				}
+			});
+			*/
+			document.getElementById('btnCamera').innerHTML = 'Start Recording';
+			document.getElementById('btnCamera').style.backgroundColor = "#33CC33";
+			recordingOnGoing = false;
+		} else {
+			/*
+			$.get(httpUrl + "/startRecording", function(data){
+				alert("Data: " + data);
+				if (data.status == "OK") {
+					updateConsole("[MAVLINK] Armed");
+				}
+			});
+			*/
+			document.getElementById('btnCamera').innerHTML = 'Stop Recording';
+			document.getElementById('btnCamera').style.backgroundColor = "red";
+			recordingOnGoing = true;
+		}
+		actionOnGoing = false;
+	}
 	
 	function handleEmergency() {
 		
@@ -78,7 +112,6 @@
 	}
 		
 	function handleFollowMe() {
-		
 		if (actionOnGoing) {
 			updateConsole("[WARNING] Action ongoing!");
 			return;
@@ -169,6 +202,13 @@
 	}
 	
 	function loadCamera() {
+		if (recordingOnGoing) {
+			document.getElementById('btnCamera').innerHTML = 'Stop Recording';
+			document.getElementById('btnCamera').style.backgroundColor = "red";
+		} else {
+			document.getElementById('btnCamera').innerHTML = 'Start Recording';
+			document.getElementById('btnCamera').style.backgroundColor = "#33CC33";
+		}
 		activePage='camera';
 	}
 	// init database 
@@ -492,20 +532,6 @@
 				<textarea id="console_output" style="width:100%; margin:0 auto" class="textarea" rows="8" placeholder="Textarea"> </textarea>			
 			</ons-col>
 		</ons-row>
-        <!--ons-row style="margin-top: 50px;margin-right: 5px;margin-bottom: 5px;margin-left: 5px">
-          <ons-col align="center">
-            <ons-button modifier="light" ng-click="ons.navigator.pushPage('page4.html')">
-              Capture Image
-            </ons-button>
-          </ons-col>
-        </ons-row>
-        <ons-row style="margin-top: 50px;margin-right: 5px;margin-bottom: 5px;margin-left: 5px">
-          <ons-col align="center">
-            <ons-button modifier="light">
-              Capture Video
-            </ons-button>
-          </ons-col>
-        </ons-row-->
       </ons-page>
     </ons-navigator>
   </script>
@@ -515,10 +541,15 @@
       <ons-toolbar>
         <div class="center">Camera</div>
       </ons-toolbar>
+		<ons-row>
+			<ons-col>
+			<div style="height:25px"></div>
+			</ons-col>
+		</ons-row>		
 	  <ons-row>
 		<ons-col>
 			<div id="main_camera" style="width:100%">
-				<button id="btnCamera" class="button--cta" style="width:95%; align: center; margin: 5px">Start recording</button>
+				<button id="btnCamera" class="button--cta" style="width:95%; height: 150px; align: center; margin: 5px" onClick="handleRecording()">Start recording</button>
 			</div>
 		</ons-col>
 	  </ons-row>
@@ -544,34 +575,10 @@
 			  </li>
 			</ul>
 			<button id="btnSavesettings" class="button--cta" style="width:95%; align: center; margin: 5px" onClick="onClickSave()">Save</button>
-			<!--div>
-				<p id="geolocationWatch">Not set yet</p>
-				<p>Serving to: <span id="hostSpan">not set yet</span></p>
-				<p><input id="hostInput" type="text" placeholder="Host" value="gpslog-dr4g0n.rhcloud.com" /></p>
-				<p><input id="portInput" type="text" placeholder="Port" value="80" /></p>
-				<p>POST feedback: <span id="postFeedbackSpan"></span></p>
-				<p>Server said: <span id="serverSaidSpan"></span></p>
-			</div-->
 		</ons-col>
 	  </ons-row>
     </ons-page>
   </script>
-
-  <!--script type="text/ons-template" id="page4.html">
-    <ons-page class="center">
-      <ons-toolbar>
-        <div class="left"><ons-back-button>Back</ons-back-button></div>
-        <div class="center">New Page</div>
-      </ons-toolbar>
-
-      <ons-row style="margin-top: 100px;">
-        <ons-col align="center">
-          <ons-button modifier="light" ng-click="ons.navigator.popPage();">Pop Page</ons-button>
-        </ons-col>
-      </ons-row>
-    </ons-page>
-  </script-->
-  
   <script type="text/ons-template" id="page5.html">
     <ons-page>
       <ons-toolbar>
