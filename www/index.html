@@ -14,10 +14,15 @@
   <script src="lib/onsen/js/angular/angular.js"></script>    
   <script src="lib/onsen/js/onsenui.js"></script>    
 
-  <script src="cordova.js"></script>
+  <!--script src="cordova.js"></script-->
   <script src="js/app.js"></script> 
   
   <script>
+    // init vars
+	var currentState = "disarmed";
+	var currentTransition = "none";
+	var watchUpdate = 1;
+  
     // Call onDeviceReady when PhoneGap is loaded.
     //
     // At this point, the document has loaded but phonegap-1.0.0.js has not.
@@ -57,7 +62,69 @@
         tx.executeSql('CREATE TABLE IF NOT EXISTS DRAGONFLYER (key unique, value)');
 		tx.executeSql('SELECT * FROM DRAGONFLYER', [], querySuccess, errorCB);
     }
+	
+	// Initialize application
+	//
+	function initApp() {
+		alert('init app');
+		currentState = "offline"
+		//document.getElementById("main_controller").disabled = true;
+		
+		// gps initialization
+		navigator.geolocation.getCurrentPosition(onWatchSuccess, onError);
+        var options = {  maximumAge: 250, timeout: 5000, enableHighAccuracy: true };
+        watchID = navigator.geolocation.watchPosition(onWatchSuccess, onError, options);
 
+	}
+	
+	
+	function onWatchSuccess(position) {
+		alert('enter');
+        var element = document.getElementById('geolocationWatch');
+        element.innerHTML = 'Latitude: '           + position.coords.latitude              + '<br />' +
+                            'Longitude: '          + position.coords.longitude             + '<br />' +
+                            'Altitude: '           + position.coords.altitude              + '<br />' +
+                            'Accuracy: '           + position.coords.accuracy              + '<br />' +
+                            'Altitude Accuracy: '  + position.coords.altitudeAccuracy      + '<br />' +
+                            'Heading: '            + position.coords.heading               + '<br />' +
+                            'Speed: '              + position.coords.speed                 + '<br />' +
+                            'Timestamp: '          + position.timestamp          + '<br />' +
+                            'Update: '          + watchUpdate          + '<br />';
+		var host = document.getElementById('hostInput');
+		var port = document.getElementById('portInput');
+		document.getElementById('hostSpan').innerHTML = host.value;
+		watchUpdate += 1;
+		//doHttpGetCall(position, host.value, port.value, watchUpdate - 1);
+    }
+	
+	function doHttpGetCall(position, host, port, idx) {
+    
+    	console.log(position);
+    
+    	document.getElementById('postFeedbackSpan').innerHTML = "Post sched " + idx;
+    
+     	$.ajax({
+	 	url: "http://" + host + ":" + port +"/updatePosition/",
+		type: "POST",
+		data: position,
+			success: function(data) {
+	    		document.getElementById('postFeedbackSpan').innerHTML = "Done " + idx;
+	    		document.getElementById('serverSaidSpan').innerHTML = data;
+	  		},
+	  		error: function( xhr, status, errorThrown ) {
+	    		document.getElementById('postFeedbackSpan').innerHTML = "Problem!" + idx + ":" + errorThrown + " - Status: " + status + " " +  JSON.stringify(xhr, null, 2);;
+	  		},
+	  	dataType: "text"
+		});
+    }
+	
+	// onError Callback receives a PositionError object
+    //
+    function onError(error) {
+        alert('code: '    + error.code    + '\n' +
+              'message: ' + error.message + '\n');
+    }
+	
     // Transaction error callback
     //
     function errorCB(err) {
@@ -69,17 +136,72 @@
     function onDeviceReady() {
         var db = window.openDatabase("dragonflyer", "1.0", "dragonflyer DB", 1000000);
 		db.transaction(initDB, errorCB);
+		initApp();
     }  
   
-	function changed() {
-		if (mySwitch.isChecked()) {
-			document.getElementById("drone_arm_switch").style.color = "#FF0000";
-			document.getElementById("drone_arm_switch").innerHTML = "Armed";
+	function toggleArm() {
+		if (droneArmSwitch.checked) {
+			currentTransition = "arming";			
 		} else {
-			document.getElementById("drone_arm_switch").style.color = "#00FF00";
-			document.getElementById("drone_arm_switch").innerHTML = "Offline";
+			currentTransition = "disarming";			
+		}
+		transitionController();
+	}
+	
+	function updateStatus(text, color, fontWeight) {
+		document.getElementById("drone_arm_switch").style.fontWeight = fontWeight;
+		document.getElementById("drone_arm_switch").style.color = color;
+		document.getElementById("drone_arm_switch").innerHTML = text;
+	}
+
+	/*
+	* Event/state changes
+	*/
+	function executeArming() {
+		updateStatus("Arming...","#33CC33","200");
+		currentTransition = "armed";
+		transitionController();
+	}
+	
+	function executeArmed() {
+		updateStatus("Armed","#33CC33","200");
+	}
+	
+	function executeDisarming() {
+		updateStatus("Disarming...","#C0C0C0","normal");
+		currentTransition = "disarmed";
+		transitionController();
+	}
+	
+	function executeEnableFlightButtons() {
+	}
+	
+	function executeDisbaleFlightButtons() {
+	}
+	
+	function executeDisarmed() {
+		updateStatus("Disarmed","#C0C0C0","normal");
+	}
+	
+	// 
+	// 
+	function transitionController() {
+	
+		oldInnerHtml = document.getElementById("console_output").innerHTML;
+		document.getElementById("console_output").innerHTML = "transitioning from " + currentState + " to " + currentTransition + '\r' + oldInnerHtml;
+		currentState = currentTransition;
+
+		if (currentTransition == "arming") {
+			executeArming();
+		} else if (currentTransition == "armed") {
+			executeArmed();
+		} else if (currentTransition == "disarming") {
+			executeDisarming();
+		} else if (currentTransition == "disarmed") {
+			executeDisarmed();
 		}
 	}
+	
   </script>	
 </head>
 
@@ -114,16 +236,53 @@
 
   <script type="text/ons-template" id="page1.html">
     <ons-navigator>
+      <ons-page>
       <ons-toolbar>
         <div class="center">Home</div>
       </ons-toolbar>
-      <ons-page>
-        <ons-row style="margin-top: 40px;margin-right: 20px;margin-bottom: 5px;margin-left: 20px">
-          <ons-col align="left">
-			<div id="drone_arm_switch">Offline</div><div><ons-switch var="mySwitch" onchange="changed()"></ons-switch></div>
+        <ons-row>
+          <ons-col>
+			<ul class="list">
+			  <li class="list__item" >
+				<div >
+					<div id="drone_arm_switch" style="float: left; width: 15%; color: #C0C0C0">Disarmed</div>
+					<div style="float: right; width: 10%">
+						<label class="switch switch--list-item">
+						  <input id="droneArmSwitch" type="checkbox" class="switch__input" onChange="toggleArm()">
+						  <div class="switch__toggle"></div>
+						</label>
+					</div>
+				</div>
+			  </li>
+			</ul>				
 		  </ons-col>
 		</ons-row>
-        <ons-row style="margin-top: 50px;margin-right: 5px;margin-bottom: 5px;margin-left: 5px">
+		<ons-row>
+			<ons-col>
+			<div style="height:25px"></div>
+			</ons-col>
+		</ons-row>
+		<ons-row>
+			<ons-col>
+				<div id="main_controller" style="width:100%">
+					<button id="btnHoover" class="button--cta" style="width:47%; align: center; margin: 5px" >Hoover</button>
+					<button id="btnLand" class="button--cta" style="width:46%; align: center; margin: 5px" >Land</button>
+					<button id="btnFollowMe" class="button--cta" style="width:95%; height:50px; align: center; margin: 5px" >Follow Me</button>
+					<button id="btnEmergency" class="button--cta" style="width:95%; height: 50px; background-color: red; align: center; margin: 5px" >Emergency stop</button>
+				</div>		
+			</ons-col>
+		</ons-row>
+		<ons-row>
+			<ons-col>
+			<div style="height:25px"></div>
+			</ons-col>
+		</ons-row>		
+		<ons-row>
+			<ons-col>
+				<textarea id="console_output" style="width:100%; margin:0 auto" class="textarea" rows="8" placeholder="Textarea"> </textarea>			
+			</ons-col>
+		</ons-row>
+        <!--ons-row style="margin-top: 50px;margin-right: 5px;margin-bottom: 5px;margin-left: 5px">
           <ons-col align="center">
             <ons-button modifier="light" ng-click="ons.navigator.pushPage('page4.html')">
               Capture Image
@@ -136,7 +295,7 @@
               Capture Video
             </ons-button>
           </ons-col>
-        </ons-row>
+        </ons-row-->
       </ons-page>
     </ons-navigator>
   </script>
@@ -159,7 +318,18 @@
 		<ons-col>
 			<div id="settingsform">
 				<form>
+				
+				
 				</form>
+			</div>			
+			<div>
+				<p>GPS beacon:</p>
+				<p id="geolocationWatch">Not set yet</p>
+				<p>Serving to: <span id="hostSpan">not set yet</span></p>
+				<p><input id="hostInput" type="text" placeholder="Host" value="gpslog-dr4g0n.rhcloud.com" /></p>
+				<p><input id="portInput" type="text" placeholder="Port" value="80" /></p>
+				<p>POST feedback: <span id="postFeedbackSpan"></span></p>
+				<p>Server said: <span id="serverSaidSpan"></span></p>
 			</div>
 		</ons-col>
 	  </ons-row>
