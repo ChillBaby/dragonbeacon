@@ -352,7 +352,7 @@
 	
 	function updateFlightButtons() {
 		if (recordingOnGoing) {
-			document.getElementById('drone_arm_switch').innerHTML = 'Armed (recording...)';
+			document.getElementById('drone_arm_switch').innerHTML = 'Armed [REC]';
 		} else {
 			document.getElementById('drone_arm_switch').innerHTML = 'Armed';
 		}
@@ -375,7 +375,7 @@
 			document.getElementById("droneArmSwitch").disabled = false;
 			document.getElementById("droneArmSwitch").checked = false;
 			if (recordingOnGoing) {
-				document.getElementById('drone_arm_switch').innerHTML = 'Disarmed (recording...)';
+				document.getElementById('drone_arm_switch').innerHTML = 'Disarmed [REC]';
 			} else {
 				document.getElementById('drone_arm_switch').innerHTML = 'Disarmed';
 			}
