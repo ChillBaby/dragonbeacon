@@ -31,14 +31,13 @@
     // 
     document.addEventListener("deviceready", onDeviceReady, false);
 
-	
 	// init database 
 	//
 	function querySuccess(tx, results) {	
 		var len = results.rows.length;
 		var httpUrl = "";
 		var refreshRate = "";
-		alert("DRAGONFLYER table: " + len + " rows found.");
+		//alert("DRAGONFLYER table: " + len + " rows found.");
 		if (len == 0) {
 			tx.executeSql('INSERT INTO DRAGONFLYER (key, value) VALUES ("httpUrl", "http://test.com/test")');
 			tx.executeSql('INSERT INTO DRAGONFLYER (key, value) VALUES ("refreshrate", "123")');			
@@ -46,7 +45,7 @@
 			refershRate = "123";
 		} else {
 			for (var i=0; i<len; i++) {
-				alert("Row = " + i + " KEY = " + results.rows.item(i).key + " value =  " + results.rows.item(i).value);		
+				//alert("Row = " + i + " KEY = " + results.rows.item(i).key + " value =  " + results.rows.item(i).value);		
 				if (results.rows.item(i).key == "httpUrl") {
 				    httpUrl = results.rows.item(i).value;
 				} else {
@@ -66,6 +65,7 @@
 	// Initialize application
 	//
 	function initApp() {
+		alert('gp init');
 		// gps initialization
 		navigator.geolocation.getCurrentPosition(onWatchSuccess, onError);
         var options = {  maximumAge: 250, timeout: 5000, enableHighAccuracy: true };
@@ -128,10 +128,9 @@
     // PhoneGap is loaded and it is now safe to make calls PhoneGap methods
     //
     function onDeviceReady() {
-		alert('deviceready');
+		initApp();
         var db = window.openDatabase("dragonflyer", "1.0", "dragonflyer DB", 1000000);
 		db.transaction(initDB, errorCB);
-		initApp();
     }  
   
 	function toggleArm() {
