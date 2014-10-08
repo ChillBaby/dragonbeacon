@@ -66,10 +66,6 @@
 	// Initialize application
 	//
 	function initApp() {
-		alert('init app');
-		//currentState = "offline"
-		//document.getElementById("main_controller").disabled = true;
-		
 		// gps initialization
 		navigator.geolocation.getCurrentPosition(onWatchSuccess, onError);
         var options = {  maximumAge: 250, timeout: 5000, enableHighAccuracy: true };
@@ -133,9 +129,9 @@
     //
     function onDeviceReady() {
 		alert('deviceready');
-        //var db = window.openDatabase("dragonflyer", "1.0", "dragonflyer DB", 1000000);
-		//db.transaction(initDB, errorCB);
-		//initApp();
+        var db = window.openDatabase("dragonflyer", "1.0", "dragonflyer DB", 1000000);
+		db.transaction(initDB, errorCB);
+		initApp();
     }  
   
 	function toggleArm() {
