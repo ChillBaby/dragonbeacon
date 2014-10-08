@@ -89,7 +89,7 @@
 	//
 	function querySuccess(tx, results) {	
 		var len = results.rows.length;
-		alert("DRAGONFLYER table: " + len + " rows found.");
+		updateConsole("[INIT] DRAGONFLYER table: " + len + " rows found.");
 		if (len == 0) {
 			httpUrl = "http://test.com/test";
 			refreshRate = "1000";
@@ -99,7 +99,7 @@
 			tx.executeSql('INSERT INTO DRAGONFLYER (key, value) VALUES ("logbuffer", "' +  logBufferSize + '")');			
 		} else {
 			for (var i=0; i<len; i++) {
-				alert("Row = " + i + " KEY = " + results.rows.item(i).key + " value =  " + results.rows.item(i).value);		
+				updateConsole("INIT] Row = " + i + " KEY = " + results.rows.item(i).key + " value =  " + results.rows.item(i).value);		
 				if (results.rows.item(i).key == "httpUrl") {
 				    httpUrl = results.rows.item(i).value;
 				} else if (results.rows.item(i).key == "refreshrate") {
@@ -126,8 +126,9 @@
 		navigator.geolocation.getCurrentPosition(onGeoLocationSuccess, onGeoLocationError);
         var options = {  maximumAge: 250, timeout: 5000, enableHighAccuracy: true };
         watchID = navigator.geolocation.watchPosition(onGeoLocationSuccess, onGeoLocationError, options);
-		window.plugins.insomnia.keepAwake();
 		updateConsole("[INIT] geoLocation");
+		window.plugins.insomnia.keepAwake();
+		updateConsole("[INIT] keepAwake");
 	}	
 	
 	function onGeoLocationSuccess(position) {
@@ -179,10 +180,6 @@
     }  
   
 	function toggleArm() {		
-	
-		alert(window.plugins);
-		alert(window.plugins.insomnia);
-		
 		if (droneArmSwitch.checked) {
 			currentTransition = "arming";			
 		} else {
