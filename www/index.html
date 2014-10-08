@@ -22,6 +22,9 @@
 	var currentState = "disarmed";
 	var currentTransition = "none";
 	var watchUpdate = 1;
+	var httpUrl = "";
+	var refreshRate = "";
+	var logBuffer = "";
   
     // Call onDeviceReady when PhoneGap is loaded.
     //
@@ -35,24 +38,30 @@
 	//
 	function querySuccess(tx, results) {	
 		var len = results.rows.length;
-		var httpUrl = "";
-		var refreshRate = "";
 		//alert("DRAGONFLYER table: " + len + " rows found.");
 		if (len == 0) {
-			tx.executeSql('INSERT INTO DRAGONFLYER (key, value) VALUES ("httpUrl", "http://test.com/test")');
-			tx.executeSql('INSERT INTO DRAGONFLYER (key, value) VALUES ("refreshrate", "123")');			
 			httpUrl = "http://test.com/test";
-			refershRate = "123";
+			refershRate = "1000";
+			logBuffer = "2000";
+			tx.executeSql('INSERT INTO DRAGONFLYER (key, value) VALUES ("httpUrl", "' + httpUrl +'")');
+			tx.executeSql('INSERT INTO DRAGONFLYER (key, value) VALUES ("refreshrate", "' + refreshRate + '")');			
+			tx.executeSql('INSERT INTO DRAGONFLYER (key, value) VALUES ("logbuffer", "' +  logBuffer + '")');			
 		} else {
 			for (var i=0; i<len; i++) {
 				//alert("Row = " + i + " KEY = " + results.rows.item(i).key + " value =  " + results.rows.item(i).value);		
 				if (results.rows.item(i).key == "httpUrl") {
 				    httpUrl = results.rows.item(i).value;
-				} else {
+				} else if (results.rows.item(i).key == "refreshrate") {
 				    refershRate = results.rows.item(i).value;
+				} else {
+				    logBuffer = results.rows.item(i).value;
 				}
 			}	
 		}
+		
+		document.getElementById('inDroneurl').value = httpUrl;
+		document.getElementById('inDronerefreshrate').value = refershRate;
+		document.getElementById('inDronelogbuffer').value = logBuffer;
 	}
 
     // Populate the database 
@@ -73,21 +82,26 @@
 	}	
 	
 	function onWatchSuccess(position) {
-		alert('enter');
-        var element = document.getElementById('geolocationWatch');
-        element.innerHTML = 'Latitude: '           + position.coords.latitude              + '<br />' +
-                            'Longitude: '          + position.coords.longitude             + '<br />' +
-                            'Altitude: '           + position.coords.altitude              + '<br />' +
-                            'Accuracy: '           + position.coords.accuracy              + '<br />' +
-                            'Altitude Accuracy: '  + position.coords.altitudeAccuracy      + '<br />' +
-                            'Heading: '            + position.coords.heading               + '<br />' +
-                            'Speed: '              + position.coords.speed                 + '<br />' +
-                            'Timestamp: '          + position.timestamp          + '<br />' +
-                            'Update: '          + watchUpdate          + '<br />';
+		document.getElementById('inLatitude').innerHTML = position.coords.latitude;
+		document.getElementById('inLongitude').innerHTML = position.coords.longitude;
+		document.getElementById('inAltitude').innerHTML = position.coords.altitude;
+		document.getElementById('inAccuracy').innerHTML = position.coords.accuracy;
+		document.getElementById('inAltitudeaccuracy').innerHTML = position.coords.altitudeAccuracy;
+		document.getElementById('inHeading').innerHTML = position.coords.heading;
+		document.getElementById('inSpeed').innerHTML = position.coords.speed;
+		document.getElementById('inTimestamp').innerHTML = position.coords.timestamp;
+		document.getElementById('inUpdate').innerHTML = position.coords.watchUpdate;
+
+		if (watchUpdate == 1) {
+			alert('enter');		
+		}
+		watchUpdate += 1;
+		
+/*
 		var host = document.getElementById('hostInput');
 		var port = document.getElementById('portInput');
-		document.getElementById('hostSpan').innerHTML = host.value;
-		watchUpdate += 1;
+		document.getElementById('hostSpan').innerHTML = host.value;		
+*/		
 		//doHttpGetCall(position, host.value, port.value, watchUpdate - 1);
     }
 	
@@ -323,27 +337,32 @@
       </ons-toolbar>
 	  <ons-row>
 		<ons-col>
-			<div id="settingsform">
-				<form>
-				
-				
-				</form>
-			</div>			
-			<div>
-				<p>GPS beacon:</p>
+			<ul class="list">
+			  <li class="list__item">
+				DroneUrl<input id="inDroneurl" type="text" class="text-input text-input--transparent" style="width:100%; margin-top:4px;" placeholder="http://test.com/drone">
+			  </li>
+			  <li class="list__item">
+				Refreshrate (secs)<input id="inDronerefreshrate" type="text" class="text-input text-input--transparent" style="width:100%; margin-top:4px;" placeholder="1">
+			  </li>
+			  <li class="list__item">
+				Log Buffer (lines)<input id="inDronelogbuffer" type="text" class="text-input text-input--transparent" style="width:100%; margin-top:4px;" placeholder="2000">
+			  </li>
+			</ul>
+			<button id="btnSavesettings" class="button--cta" style="width:95%; align: center; margin: 5px">Save</button>
+			<!--div>
 				<p id="geolocationWatch">Not set yet</p>
 				<p>Serving to: <span id="hostSpan">not set yet</span></p>
 				<p><input id="hostInput" type="text" placeholder="Host" value="gpslog-dr4g0n.rhcloud.com" /></p>
 				<p><input id="portInput" type="text" placeholder="Port" value="80" /></p>
 				<p>POST feedback: <span id="postFeedbackSpan"></span></p>
 				<p>Server said: <span id="serverSaidSpan"></span></p>
-			</div>
+			</div-->
 		</ons-col>
 	  </ons-row>
     </ons-page>
   </script>
 
-  <script type="text/ons-template" id="page4.html">
+  <!--script type="text/ons-template" id="page4.html">
     <ons-page class="center">
       <ons-toolbar>
         <div class="left"><ons-back-button>Back</ons-back-button></div>
@@ -356,21 +375,44 @@
         </ons-col>
       </ons-row>
     </ons-page>
-  </script>
+  </script-->
   
   <script type="text/ons-template" id="page5.html">
     <ons-page>
       <ons-toolbar>
         <div class="center">Location</div>
       </ons-toolbar>
-			<div id="tt">
-			sdfsdf
-			dsf
-			dsf
-			dsfd
-			sfd
-			
-			</div>
+		<div id="tt">
+			<ul class="list">
+			  <li class="list__item">
+				<div id="inLatitude" class="list__right-label">loading...</div>Latitude
+			  </li>
+			  <li class="list__item">
+				<div id="inLongitude" class="list__right-label">loading...</div>Longitude
+			  </li>
+			  <li class="list__item">
+				<div id="inAltitude" class="list__right-label">loading...</div>Altitude
+			  </li>
+			  <li class="list__item">
+				<div id="inAccuracy" class="list__right-label">loading...</div>Accuracy
+			  </li>
+			  <li class="list__item">
+				<div id="inAltitudeaccuracy" class="list__right-label">loading...</div>Altitude Accuracy
+			  </li>
+			  <li class="list__item">
+				<div id="inHeading" class="list__right-label">loading...</div>Heading
+			  </li>
+			  <li class="list__item">
+				<div id="inSpeed" class="list__right-label">loading...</div>Speed
+			  </li>
+			  <li class="list__item">
+				<div id="inTimestamp" class="list__right-label">loading...</div>Timestamp
+			  </li>
+			  <li class="list__item">
+				<div id="inUpdate" class="list__right-label">loading...</div>Update
+			  </li>
+			</ul>		
+		</div>
     </ons-page>
   </script>
 
