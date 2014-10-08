@@ -21,6 +21,7 @@
     // init vars
 	var currentState = "disarmed";
 	var currentTransition = "none";
+	var watchID = null;
 	var watchUpdate = 1;
 	var httpUrl = "";
 	var refreshRate = "";
@@ -76,12 +77,15 @@
 	function initApp() {
 		alert('gp init');
 		// gps initialization
-		navigator.geolocation.getCurrentPosition(onWatchSuccess, onError);
-        var options = {  maximumAge: 250, timeout: 5000, enableHighAccuracy: true };
+		//navigator.geolocation.getCurrentPosition(onWatchSuccess, onError);
+        //var options = {  maximumAge: 250, timeout: 5000, enableHighAccuracy: true };
+        var options = {  timeout: 5000 };
         watchID = navigator.geolocation.watchPosition(onWatchSuccess, onError, options);
 	}	
 	
 	function onWatchSuccess(position) {
+		alert('enter success locationgeo ' + position);		
+		/*
 		document.getElementById('inLatitude').innerHTML = position.coords.latitude;
 		document.getElementById('inLongitude').innerHTML = position.coords.longitude;
 		document.getElementById('inAltitude').innerHTML = position.coords.altitude;
@@ -93,8 +97,8 @@
 		document.getElementById('inUpdate').innerHTML = position.coords.watchUpdate;
 
 		if (watchUpdate == 1) {
-			alert('enter');		
 		}
+		*/
 		watchUpdate += 1;
 		
 /*
@@ -103,6 +107,13 @@
 		document.getElementById('hostSpan').innerHTML = host.value;		
 */		
 		//doHttpGetCall(position, host.value, port.value, watchUpdate - 1);
+    }
+	
+	// onError Callback receives a PositionError object
+    //
+    function onError(error) {
+        alert('locationgeo - code: '    + error.code    + '\n' +
+              'locationgeo - message: ' + error.message + '\n' + error);
     }
 	
 	function doHttpGetCall(position, host, port, idx) {
@@ -124,13 +135,6 @@
 	  		},
 	  	dataType: "text"
 		});
-    }
-	
-	// onError Callback receives a PositionError object
-    //
-    function onError(error) {
-        alert('code: '    + error.code    + '\n' +
-              'message: ' + error.message + '\n');
     }
 	
     // Transaction error callback
