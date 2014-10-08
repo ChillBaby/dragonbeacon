@@ -16,8 +16,17 @@
 
   <script src="cordova.js"></script>
   <script src="js/app.js"></script> 
+ 
   
   <script>
+  
+  /*
+{
+    "status": "OK"
+}  
+  
+  */
+  
     // init vars
 	var currentState = "disarmed";
 	var currentTransition = "none";
@@ -80,17 +89,17 @@
 	//
 	function querySuccess(tx, results) {	
 		var len = results.rows.length;
-		//alert("DRAGONFLYER table: " + len + " rows found.");
+		alert("DRAGONFLYER table: " + len + " rows found.");
 		if (len == 0) {
 			httpUrl = "http://test.com/test";
-			refershRate = "1000";
+			refreshRate = "1000";
 			logBufferSize = "2000";
 			tx.executeSql('INSERT INTO DRAGONFLYER (key, value) VALUES ("httpUrl", "' + httpUrl +'")');
 			tx.executeSql('INSERT INTO DRAGONFLYER (key, value) VALUES ("refreshrate", "' + refreshRate + '")');			
 			tx.executeSql('INSERT INTO DRAGONFLYER (key, value) VALUES ("logbuffer", "' +  logBufferSize + '")');			
 		} else {
 			for (var i=0; i<len; i++) {
-				//alert("Row = " + i + " KEY = " + results.rows.item(i).key + " value =  " + results.rows.item(i).value);		
+				alert("Row = " + i + " KEY = " + results.rows.item(i).key + " value =  " + results.rows.item(i).value);		
 				if (results.rows.item(i).key == "httpUrl") {
 				    httpUrl = results.rows.item(i).value;
 				} else if (results.rows.item(i).key == "refreshrate") {
@@ -100,6 +109,7 @@
 				}
 			}	
 		}
+		updateConsole("[INIT] loaded settings");
 		if (activepage == 'settings') { loadSettings(); };
 	}
 
@@ -113,27 +123,23 @@
 	// Initialize application
 	//
 	function initApp() {
-		alert('gp init');
-		// gps initialization
-		//navigator.geolocation.getCurrentPosition(onWatchSuccess, onError);
-        //var options = {  maximumAge: 250, timeout: 5000, enableHighAccuracy: true };
-        var options = {  timeout: 5000 };
+        var options = {  maximumAge: 250, timeout: 5000, enableHighAccuracy: true };
         watchID = navigator.geolocation.watchPosition(onWatchSuccess, onError, options);
+		updateConsole("[INIT] geoLocation");
 	}	
 	
 	function onWatchSuccess(position) {
-		alert('enter success locationgeo ' + position);		
 		lastPosition = position;
 		if (activePage == 'location') { loadLocation(); };
 		watchUpdate += 1;
 		//doHttpGetCall(position, host.value, port.value, watchUpdate - 1);
+		updateConsole("[OK] geoLocation - point " + watchUpdate);
     }
 	
 	// onError Callback receives a PositionError object
     //
     function onError(error) {
-        alert('locationgeo - code: '    + error.code    + '\n' +
-              'locationgeo - message: ' + error.message + '\n' + error);
+		updateConsole("[ERROR] geoLocation - code:" + error.code + ", message:" + error.message);
     }
 	
 	function doHttpGetCall(position, host, port, idx) {
@@ -160,12 +166,13 @@
     // Transaction error callback
     //
     function errorCB(err) {
-        alert("Error processing SQL: "+err);
+		updateConsole("[ERROR] appDB - message:" + err);
     }
 	
     // PhoneGap is loaded and it is now safe to make calls PhoneGap methods
     //
     function onDeviceReady() {
+		updateConsole("[OK] Device ready");
 		initApp();
         var db = window.openDatabase("dragonflyer", "1.0", "dragonflyer DB", 1000000);
 		db.transaction(initDB, errorCB);
@@ -228,8 +235,10 @@
 	}
 
 	function updateConsole(consoleText) {
-		
 		logBuffer = consoleText + '\r' + logBuffer;
+		if (logBuffer.length > parseInt(logBufferSize)) {
+			logBuffer = logBuffer.substring(0,parseInt(logBufferSize));
+		}
 		if (activePage == 'home') {
 			document.getElementById("console_output").innerHTML = logBuffer;
 		}
