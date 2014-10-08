@@ -14,7 +14,7 @@
   <script src="lib/onsen/js/angular/angular.js"></script>    
   <script src="lib/onsen/js/onsenui.js"></script>    
 
-  <!--script src="cordova.js"></script-->
+  <!--script src="js/cordova.js"></script-->
   <script src="js/app.js"></script> 
   
   <script>
@@ -67,16 +67,14 @@
 	//
 	function initApp() {
 		alert('init app');
-		currentState = "offline"
+		//currentState = "offline"
 		//document.getElementById("main_controller").disabled = true;
 		
 		// gps initialization
 		navigator.geolocation.getCurrentPosition(onWatchSuccess, onError);
         var options = {  maximumAge: 250, timeout: 5000, enableHighAccuracy: true };
         watchID = navigator.geolocation.watchPosition(onWatchSuccess, onError, options);
-
-	}
-	
+	}	
 	
 	function onWatchSuccess(position) {
 		alert('enter');
@@ -134,9 +132,10 @@
     // PhoneGap is loaded and it is now safe to make calls PhoneGap methods
     //
     function onDeviceReady() {
-        var db = window.openDatabase("dragonflyer", "1.0", "dragonflyer DB", 1000000);
-		db.transaction(initDB, errorCB);
-		initApp();
+		alert('deviceready');
+        //var db = window.openDatabase("dragonflyer", "1.0", "dragonflyer DB", 1000000);
+		//db.transaction(initDB, errorCB);
+		//initApp();
     }  
   
 	function toggleArm() {
@@ -164,7 +163,7 @@
 	}
 	
 	function executeArmed() {
-		updateStatus("Armed","#33CC33","200");
+		updateStatus("Armed","#C0C0C0","200");
 		executeEnableFlightButtons();
 	}
 	
@@ -201,10 +200,8 @@
 	}
 	
 	function transitionController() {
-	
 		updateConsole("transitioning from " + currentState + " to " + currentTransition);
 		currentState = currentTransition;
-
 		if (currentTransition == "arming") {
 			executeArming();
 		} else if (currentTransition == "armed") {
