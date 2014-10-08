@@ -334,25 +334,25 @@
 	* Event/state changes
 	*/
 	function executeArming() {
-		updateStatus("Arming...","#33CC33","normal");
+		updateStatus("Arming...","black","normal");
 		currentTransition = "armed";
 		transitionController();
 	}
 	
 	function executeArmed() {
-		updateStatus("Armed","#C0C0C0","normal");
+		updateStatus("Armed","black","normal");
 		updateFlightButtons();
 	}
 	
 	function executeDisarming() {
-		updateStatus("Disarming...","#C0C0C0","normal");
+		updateStatus("Disarming...","black","normal");
 		currentTransition = "disarmed";
 		transitionController();
 	}
 	
 	function updateFlightButtons() {
 		if (recordingOnGoing) {
-			document.getElementById('drone_arm_switch').innerHTML = 'Armed [REC]';
+			document.getElementById('drone_arm_switch').innerHTML = 'Armed <strong><font size="1" color="red">[RECORDING]</font></strong>';
 		} else {
 			document.getElementById('drone_arm_switch').innerHTML = 'Armed';
 		}
@@ -375,7 +375,7 @@
 			document.getElementById("droneArmSwitch").disabled = false;
 			document.getElementById("droneArmSwitch").checked = false;
 			if (recordingOnGoing) {
-				document.getElementById('drone_arm_switch').innerHTML = 'Disarmed [REC]';
+				document.getElementById('drone_arm_switch').innerHTML = 'Disarmed <strong><font size="1" color="red">[RECORDING]</font></strong>';
 			} else {
 				document.getElementById('drone_arm_switch').innerHTML = 'Disarmed';
 			}
@@ -478,7 +478,7 @@
     <ons-tabbar-item		
 	  onclick="loadHome()"
       active="true"
-      label="Home"
+      label="Controller"
       icon="home"
       page="page1.html">
     </ons-tabbar-item>
@@ -509,14 +509,14 @@
     <ons-navigator var="myNavigator">
       <ons-page>
       <ons-toolbar>
-        <div class="center">Home</div>
+        <div class="center">Controller</div>
       </ons-toolbar>
         <ons-row>
           <ons-col>
 			<ul class="list">
 			  <li class="list__item" >
 				<div >
-					<div id="drone_arm_switch" style="float: left; width: 15%; color: #C0C0C0">Disarmed</div>
+					<div id="drone_arm_switch" style="float: left; color: black">Disarmed</div>
 					<div style="float: right; width: 10%">
 						<label class="switch switch--list-item">
 						  <input id="droneArmSwitch" type="checkbox" class="switch__input" onChange="toggleArm()">
