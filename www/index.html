@@ -126,7 +126,7 @@
 		navigator.geolocation.getCurrentPosition(onGeoLocationSuccess, onGeoLocationError);
         var options = {  maximumAge: 250, timeout: 5000, enableHighAccuracy: true };
         watchID = navigator.geolocation.watchPosition(onGeoLocationSuccess, onGeoLocationError, options);
-		//window.plugins.insomnia.keepAwake();
+		window.plugins.insomnia.keepAwake();
 		updateConsole("[INIT] geoLocation");
 	}	
 	
@@ -179,6 +179,10 @@
     }  
   
 	function toggleArm() {		
+	
+		alert(window.plugins);
+		alert(window.plugins.insomnia);
+		
 		if (droneArmSwitch.checked) {
 			currentTransition = "arming";			
 		} else {
