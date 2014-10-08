@@ -16,7 +16,7 @@
 
   <script src="cordova.js"></script>
   <script src="js/app.js"></script> 
- 
+  <script src="js/jquery-1.11.1.min.js"></script> 
   
   <script>
   
@@ -32,12 +32,13 @@
 	var currentTransition = "none";
 	var watchID = null;
 	var watchUpdate = 1;
-	var httpUrl = "";
+	var httpUrl = "http://localhost/testgets.php";
 	var refreshRate = "";
 	var logBufferSize = "";
 	var activePage = "home";
 	var lastPosition = null;
 	var logBuffer = "";
+	var actionOnGoing = false;
   
     // Call onDeviceReady when PhoneGap is loaded.
     //
@@ -46,6 +47,98 @@
     // it will call the event `deviceready`.
     // 
     document.addEventListener("deviceready", onDeviceReady, false);
+
+	
+	function handleEmergency() {
+		
+		if (actionOnGoing) {
+			updateConsole("[WARNING] Action ongoing!");
+			return;
+		}
+		actionOnGoing = true;
+		/*
+		$.get(httpUrl + "/land", function(data){
+			alert("Data: " + data);
+			if (data.status == "OK") {
+				updateConsole("[MAVLINK] Armed");
+			}
+		});
+		*/
+		/*
+		$.get(httpUrl + "/releaseRC", function(data){
+			alert("Data: " + data);
+			if (data.status == "OK") {
+				updateConsole("[MAVLINK] Armed");
+			}
+		});
+		*/
+		currentState = "disarmed";
+		updateFlightButtons();		
+		actionOnGoing = false;
+	}
+		
+	function handleFollowMe() {
+		
+		if (actionOnGoing) {
+			updateConsole("[WARNING] Action ongoing!");
+			return;
+		}
+		actionOnGoing = true;
+		if ((currentState == "hoover") || (currentState == "loiter")) {
+			/*
+			$.get(httpUrl + "/followMe/?latitude=51.046015&longitude=3.687951&altitude=10", function(data){
+				alert("Data: " + data);
+				if (data.status == "OK") {
+					updateConsole("[MAVLINK] Armed");
+				}
+			});
+			*/
+			currentState = "followme";
+		} else if (currentState == "followme") {
+			/*
+			$.get(httpUrl + "/setMode/?mode=LOITER	", function(data){
+				alert("Data: " + data);
+				if (data.status == "OK") {
+					updateConsole("[MAVLINK] Armed");
+				}
+			});
+			*/
+			currentState = "loiter";
+		}
+		updateFlightButtons();		
+		actionOnGoing = false;
+	}
+		
+	function handleHoover() {
+		if (actionOnGoing) {
+			updateConsole("[WARNING] Action ongoing!");
+			return;
+		}
+		actionOnGoing = true;
+		if (currentState == "armed") {
+			/*
+			$.get(httpUrl + "/takeoff", function(data){
+				alert("Data: " + data);
+				if (data.status == "OK") {
+					updateConsole("[MAVLINK] Armed");
+				}
+			});
+			*/
+			currentState = "hoover";
+		}  else if ((currentState == "hoover") || (currentState == "loiter")) {
+			/*
+			$.get(httpUrl + "/land", function(data){
+				alert("Data: " + data);
+				if (data.status == "OK") {
+					updateConsole("[MAVLINK] Land");
+				}
+			});
+			*/
+			currentState = "armed";
+		}
+		updateFlightButtons();
+		actionOnGoing = false;
+	}	
 	
 	function loadSettings() {		
 		document.getElementById('inDroneurl').value = httpUrl;
@@ -55,16 +148,9 @@
 	}
 	
 	function loadHome() {
-		if (currentState != 'disarmed') {
-			droneArmSwitch.checked = true;
-			document.getElementById('drone_arm_switch').innerHTML = 'Armed';
-			document.getElementById("btnHoover").disabled  = false;
-			document.getElementById("btnLand").disabled  = false;
-			document.getElementById("btnFollowMe").disabled  = false;
-			document.getElementById("btnEmergency").disabled  = false;	
-		}
+		updateFlightButtons();		
 		document.getElementById('console_output').innerHTML = logBuffer;
-		activePage='home';
+		activePage = 'home';
 	}
 	
 	function loadLocation() {
@@ -91,7 +177,7 @@
 		var len = results.rows.length;
 		updateConsole("[INIT] DRAGONFLYER table: " + len + " rows found.");
 		if (len == 0) {
-			httpUrl = "http://test.com/test";
+			httpUrl = "http://localhost:80/testgets.php";
 			refreshRate = "1000";
 			logBufferSize = "2000";
 			tx.executeSql('INSERT INTO DRAGONFLYER (key, value) VALUES ("httpUrl", "' + httpUrl +'")');
@@ -135,7 +221,7 @@
 		lastPosition = position;
 		if (activePage == 'location') { loadLocation(); };
 		watchUpdate += 1;
-		//doHttpGetCall(position, host.value, port.value, watchUpdate - 1);
+		doHttpGetCall(position, watchUpdate - 1);
 		updateConsole("[OK] geoLocation - point " + watchUpdate);
     }
 	
@@ -145,22 +231,18 @@
 		updateConsole("[ERROR] geoLocation - code:" + error.code + ", message:" + error.message);
     }
 	
-	function doHttpGetCall(position, host, port, idx) {
-    
-    	document.getElementById('postFeedbackSpan').innerHTML = "Post sched " + idx;
-    
+	function doHttpGetCall(position, idx) {
      	$.ajax({
-	 	url: "http://" + host + ":" + port +"/updatePosition/",
-		type: "POST",
-		data: position,
+			url: httpUrl + "/updatePosition/",
+			type: "POST",
+			data: position,
 			success: function(data) {
-	    		document.getElementById('postFeedbackSpan').innerHTML = "Done " + idx;
-	    		document.getElementById('serverSaidSpan').innerHTML = data;
-	  		},
-	  		error: function( xhr, status, errorThrown ) {
-	    		document.getElementById('postFeedbackSpan').innerHTML = "Problem!" + idx + ":" + errorThrown + " - Status: " + status + " " +  JSON.stringify(xhr, null, 2);;
-	  		},
-	  	dataType: "text"
+				updateConsole("[POST] " + idx +  ":" + data);
+			},
+			error: function( xhr, status, errorThrown ) {
+				updateConsole("[POST-ERR] " + idx +  ":" + errorThrown + " - Status: " + status + " " +  JSON.stringify(xhr, null, 2));
+			},
+			dataType: "text"
 		});
     }
 	
@@ -198,14 +280,14 @@
 	* Event/state changes
 	*/
 	function executeArming() {
-		updateStatus("Arming...","#33CC33","200");
+		updateStatus("Arming...","#33CC33","normal");
 		currentTransition = "armed";
 		transitionController();
 	}
 	
 	function executeArmed() {
-		updateStatus("Armed","#C0C0C0","200");
-		executeEnableFlightButtons();
+		updateStatus("Armed","#C0C0C0","normal");
+		updateFlightButtons();
 	}
 	
 	function executeDisarming() {
@@ -214,25 +296,90 @@
 		transitionController();
 	}
 	
-	function executeDisableFlightButtons() {
-		updateConsole("buttons Disabled");
-		document.getElementById("btnHoover").disabled  = true;
-		document.getElementById("btnLand").disabled  = true;
-		document.getElementById("btnFollowMe").disabled  = true;
-		document.getElementById("btnEmergency").disabled  = true;	
-	}
-	
-	function executeEnableFlightButtons() {
-		updateConsole("buttons Enabled");
-		document.getElementById("btnHoover").disabled  = false;
-		document.getElementById("btnLand").disabled  = false;
-		document.getElementById("btnFollowMe").disabled  = false;
-		document.getElementById("btnEmergency").disabled  = false;	
+	function updateFlightButtons() {
+		document.getElementById('drone_arm_switch').innerHTML = 'Armed';
+		if (currentState == "armed") {
+			document.getElementById("droneArmSwitch").disabled = false;
+			document.getElementById("droneArmSwitch").checked = true;
+		
+			document.getElementById("btnHoover").disabled  = false;
+			document.getElementById("btnFollowMe").disabled  = true;
+			document.getElementById("btnEmergency").disabled  = false;	
+			
+			document.getElementById("btnHoover").innerHTML = "Hoover";
+			document.getElementById("btnFollowMe").innerHTML = "Start Follow";
+			document.getElementById("btnEmergency").innerHTML = "Emergency Stop"
+
+			document.getElementById("btnHoover").style.backgroundColor = "#33CC33";
+			document.getElementById("btnFollowMe").style.backgroundColor = "grey";
+			document.getElementById("btnEmergency").style.backgroundColor = "red";
+		} else if (currentState == "disarmed") {
+			document.getElementById("droneArmSwitch").disabled = false;
+			document.getElementById("droneArmSwitch").checked = false;
+			document.getElementById('drone_arm_switch').innerHTML = 'Disarmed';
+
+			document.getElementById("btnHoover").disabled  = true;
+			document.getElementById("btnFollowMe").disabled  = true;
+			document.getElementById("btnEmergency").disabled  = true;	
+
+			document.getElementById("btnHoover").innerHTML = "Hoover";
+			document.getElementById("btnFollowMe").innerHTML = "Start Follow";
+			document.getElementById("btnEmergency").innerHTML = "Emergency Stop"
+			
+			document.getElementById("btnHoover").style.backgroundColor = "#33CC33";
+			document.getElementById("btnFollowMe").style.backgroundColor = "grey";
+			document.getElementById("btnEmergency").style.backgroundColor = "darkgrey";
+		} else if (currentState == "hoover") {
+			document.getElementById("droneArmSwitch").disabled = true;
+			document.getElementById("droneArmSwitch").checked = true;
+			
+			document.getElementById("btnHoover").disabled  = false;
+			document.getElementById("btnFollowMe").disabled  = false;
+			document.getElementById("btnEmergency").disabled  = false;	
+			
+			document.getElementById("btnHoover").innerHTML = "Land";
+			document.getElementById("btnFollowMe").innerHTML = "Start Follow";
+			document.getElementById("btnEmergency").innerHTML = "Emergency Stop"
+			
+			document.getElementById("btnHoover").style.backgroundColor = "green";
+			document.getElementById("btnFollowMe").style.backgroundColor = "#33CC33";
+			document.getElementById("btnEmergency").style.backgroundColor = "red";
+		} else if (currentState == "followme") {
+			document.getElementById("droneArmSwitch").disabled = true;
+			document.getElementById("droneArmSwitch").checked = true;
+			
+			document.getElementById("btnHoover").disabled  = false;
+			document.getElementById("btnFollowMe").disabled  = false;
+			document.getElementById("btnEmergency").disabled  = false;	
+			
+			document.getElementById("btnHoover").innerHTML = "Land";
+			document.getElementById("btnFollowMe").innerHTML = "Stop Follow";
+			document.getElementById("btnEmergency").innerHTML = "Emergency Stop"
+			
+			document.getElementById("btnHoover").style.backgroundColor = "green";
+			document.getElementById("btnFollowMe").style.backgroundColor = "green";
+			document.getElementById("btnEmergency").style.backgroundColor = "red";
+		} else if (currentState == "loiter") {
+			document.getElementById("droneArmSwitch").disabled = true;
+			document.getElementById("droneArmSwitch").checked = true;
+			
+			document.getElementById("btnHoover").disabled  = false;
+			document.getElementById("btnFollowMe").disabled  = false;
+			document.getElementById("btnEmergency").disabled  = false;	
+			
+			document.getElementById("btnHoover").innerHTML = "Land";
+			document.getElementById("btnFollowMe").innerHTML = "Start Follow";
+			document.getElementById("btnEmergency").innerHTML = "Emergency Stop"
+			
+			document.getElementById("btnHoover").style.backgroundColor = "green";
+			document.getElementById("btnFollowMe").style.backgroundColor = "#33CC33";
+			document.getElementById("btnEmergency").style.backgroundColor = "red";
+		}
 	}
 	
 	function executeDisarmed() {
 		updateStatus("Disarmed","#C0C0C0","normal");
-		executeDisableFlightButtons();
+		updateFlightButtons();
 	}
 
 	function updateConsole(consoleText) {
@@ -246,7 +393,7 @@
 	}
 	
 	function transitionController() {
-		updateConsole("transitioning from " + currentState + " to " + currentTransition);
+		//updateConsole("transitioning from " + currentState + " to " + currentTransition);
 		currentState = currentTransition;
 		if (currentTransition == "arming") {
 			executeArming();
@@ -327,11 +474,11 @@
 		<ons-row>
 			<ons-col>
 				<div id="main_controller" style="width:100%">
-					<button id="btnHoover" class="button--cta" style="width:95%; align: center; margin: 5px" disabled>Hoover</button>
-					<button id="btnLand" class="button--cta" style="width:95%; align: center; margin: 5px"  disabled>Land</button>
-					<button id="btnFollowMe" class="button--cta" style="width:95%; height:50px; align: center; margin: 5px"  disabled>Follow Me</button>
-					<div style="height: 50px"></div>
-					<button id="btnEmergency" class="button--cta" style="width:95%; height: 50px; background-color: red; align: center; margin: 5px"  disabled>Emergency stop</button>
+					<button id="btnHoover" class="button--cta" style="width:95%; align: center; margin: 5px" onClick="handleHoover()" disabled>Hoover</button>
+					<!--button id="btnLand" class="button--cta" style="width:95%; align: center; margin: 5px"  disabled>Land</button-->
+					<button id="btnFollowMe" class="button--cta" style="width:95%; height:150px;  background-color: gray;align: center; margin: 5px"  onClick="handleFollowMe()" disabled>Start Follow</button>
+					<div style="height: 5px"></div>
+					<button id="btnEmergency" class="button--cta" style="width:95%; height: 150px; background-color: darkgray; align: center; margin: 5px" onClick="handleEmergency()" disabled>Emergency stop</button>
 				</div>		
 			</ons-col>
 		</ons-row>
@@ -368,7 +515,13 @@
       <ons-toolbar>
         <div class="center">Camera</div>
       </ons-toolbar>
-
+	  <ons-row>
+		<ons-col>
+			<div id="main_camera" style="width:100%">
+				<button id="btnCamera" class="button--cta" style="width:95%; align: center; margin: 5px">Start recording</button>
+			</div>
+		</ons-col>
+	  </ons-row>
     </ons-page>
   </script>
 
