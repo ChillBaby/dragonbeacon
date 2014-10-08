@@ -100,7 +100,7 @@
 				}
 			}	
 		}
-		if (activepage == 'settings'} loadSettings();
+		if (activepage == 'settings') { loadSettings(); };
 	}
 
     // Populate the database 
@@ -124,7 +124,7 @@
 	function onWatchSuccess(position) {
 		alert('enter success locationgeo ' + position);		
 		lastPosition = position;
-		if (activePage == 'location') loadLocation();
+		if (activePage == 'location') { loadLocation(); };
 		watchUpdate += 1;
 		//doHttpGetCall(position, host.value, port.value, watchUpdate - 1);
     }
