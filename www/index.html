@@ -25,6 +25,9 @@
 	var watchUpdate = 1;
 	var httpUrl = "";
 	var refreshRate = "";
+	var logBufferSize = "";
+	var activePage = "home";
+	var lastPosition = null;
 	var logBuffer = "";
   
     // Call onDeviceReady when PhoneGap is loaded.
@@ -34,7 +37,45 @@
     // it will call the event `deviceready`.
     // 
     document.addEventListener("deviceready", onDeviceReady, false);
-
+	
+	function loadSettings() {		
+		document.getElementById('inDroneurl').value = httpUrl;
+		document.getElementById('inDronerefreshrate').value = refreshRate;
+		document.getElementById('inDronelogbuffer').value = logBufferSize;
+		activePage='settings';
+	}
+	
+	function loadHome() {
+		if (currentState != 'disarmed') {
+			droneArmSwitch.checked = true;
+			document.getElementById('drone_arm_switch').innerHTML = 'Armed';
+			document.getElementById("btnHoover").disabled  = false;
+			document.getElementById("btnLand").disabled  = false;
+			document.getElementById("btnFollowMe").disabled  = false;
+			document.getElementById("btnEmergency").disabled  = false;	
+		}
+		document.getElementById('console_output').innerHTML = logBuffer;
+		activePage='home';
+	}
+	
+	function loadLocation() {
+	    if (lastPosition != null) {
+			document.getElementById('inLatitude').innerHTML = lastPosition.coords.latitude;
+			document.getElementById('inLongitude').innerHTML = lastPosition.coords.longitude;
+			document.getElementById('inAltitude').innerHTML = lastPosition.coords.altitude;
+			document.getElementById('inAccuracy').innerHTML = lastPosition.coords.accuracy;
+			document.getElementById('inAltitudeaccuracy').innerHTML = lastPosition.coords.altitudeAccuracy;
+			document.getElementById('inHeading').innerHTML = lastPosition.coords.heading;
+			document.getElementById('inSpeed').innerHTML = lastPosition.coords.speed;
+			document.getElementById('inTimestamp').innerHTML = lastPosition.coords.timestamp;
+			document.getElementById('inUpdate').innerHTML = watchUpdate;
+		}
+		activePage='location';
+	}
+	
+	function loadCamera() {
+		activePage='camera';
+	}
 	// init database 
 	//
 	function querySuccess(tx, results) {	
@@ -43,10 +84,10 @@
 		if (len == 0) {
 			httpUrl = "http://test.com/test";
 			refershRate = "1000";
-			logBuffer = "2000";
+			logBufferSize = "2000";
 			tx.executeSql('INSERT INTO DRAGONFLYER (key, value) VALUES ("httpUrl", "' + httpUrl +'")');
 			tx.executeSql('INSERT INTO DRAGONFLYER (key, value) VALUES ("refreshrate", "' + refreshRate + '")');			
-			tx.executeSql('INSERT INTO DRAGONFLYER (key, value) VALUES ("logbuffer", "' +  logBuffer + '")');			
+			tx.executeSql('INSERT INTO DRAGONFLYER (key, value) VALUES ("logbuffer", "' +  logBufferSize + '")');			
 		} else {
 			for (var i=0; i<len; i++) {
 				//alert("Row = " + i + " KEY = " + results.rows.item(i).key + " value =  " + results.rows.item(i).value);		
@@ -55,14 +96,11 @@
 				} else if (results.rows.item(i).key == "refreshrate") {
 				    refershRate = results.rows.item(i).value;
 				} else {
-				    logBuffer = results.rows.item(i).value;
+				    logBufferSize = results.rows.item(i).value;
 				}
 			}	
 		}
-		
-		document.getElementById('inDroneurl').value = httpUrl;
-		document.getElementById('inDronerefreshrate').value = refershRate;
-		document.getElementById('inDronelogbuffer').value = logBuffer;
+		if (activepage == 'settings'} loadSettings();
 	}
 
     // Populate the database 
@@ -85,27 +123,9 @@
 	
 	function onWatchSuccess(position) {
 		alert('enter success locationgeo ' + position);		
-		/*
-		document.getElementById('inLatitude').innerHTML = position.coords.latitude;
-		document.getElementById('inLongitude').innerHTML = position.coords.longitude;
-		document.getElementById('inAltitude').innerHTML = position.coords.altitude;
-		document.getElementById('inAccuracy').innerHTML = position.coords.accuracy;
-		document.getElementById('inAltitudeaccuracy').innerHTML = position.coords.altitudeAccuracy;
-		document.getElementById('inHeading').innerHTML = position.coords.heading;
-		document.getElementById('inSpeed').innerHTML = position.coords.speed;
-		document.getElementById('inTimestamp').innerHTML = position.coords.timestamp;
-		document.getElementById('inUpdate').innerHTML = position.coords.watchUpdate;
-
-		if (watchUpdate == 1) {
-		}
-		*/
+		lastPosition = position;
+		if (activePage == 'location') loadLocation();
 		watchUpdate += 1;
-		
-/*
-		var host = document.getElementById('hostInput');
-		var port = document.getElementById('portInput');
-		document.getElementById('hostSpan').innerHTML = host.value;		
-*/		
 		//doHttpGetCall(position, host.value, port.value, watchUpdate - 1);
     }
 	
@@ -151,7 +171,7 @@
 		db.transaction(initDB, errorCB);
     }  
   
-	function toggleArm() {
+	function toggleArm() {		
 		if (droneArmSwitch.checked) {
 			currentTransition = "arming";			
 		} else {
@@ -208,8 +228,11 @@
 	}
 
 	function updateConsole(consoleText) {
-		oldInnerHtml = document.getElementById("console_output").innerHTML;
-		document.getElementById("console_output").innerHTML = consoleText + '\r' + oldInnerHtml;
+		
+		logBuffer = consoleText + '\r' + logBuffer;
+		if (activePage == 'home') {
+			document.getElementById("console_output").innerHTML = logBuffer;
+		}
 	}
 	
 	function transitionController() {
@@ -230,9 +253,11 @@
 </head>
 
 <body>    
-  
+<div>
+
   <ons-tabbar>
-    <ons-tabbar-item
+    <ons-tabbar-item		
+	  onclick="loadHome()"
       active="true"
       label="Home"
       icon="home"
@@ -240,18 +265,21 @@
     </ons-tabbar-item>
 
     <ons-tabbar-item
+	  onclick="loadCamera()"
       label="Camera"
       icon="ion-images"
       page="page2.html">
     </ons-tabbar-item>
 
     <ons-tabbar-item
+	  onclick="loadLocation()"
       label="Location"
       icon="ion-ios7-location"
       page="page5.html">
     </ons-tabbar-item>
 
     <ons-tabbar-item
+	  onclick="loadSettings()"
       label="Settings"
       icon="gear"
       page="page3.html">
@@ -259,7 +287,7 @@
   </ons-tabbar>
 
   <script type="text/ons-template" id="page1.html">
-    <ons-navigator>
+    <ons-navigator var="myNavigator">
       <ons-page>
       <ons-toolbar>
         <div class="center">Home</div>
@@ -352,7 +380,7 @@
 				Log Buffer (lines)<input id="inDronelogbuffer" type="text" class="text-input text-input--transparent" style="width:100%; margin-top:4px;" placeholder="2000">
 			  </li>
 			</ul>
-			<button id="btnSavesettings" class="button--cta" style="width:95%; align: center; margin: 5px">Save</button>
+			<button id="btnSavesettings" class="button--cta" style="width:95%; align: center; margin: 5px" onClick="onClickSave()">Save</button>
 			<!--div>
 				<p id="geolocationWatch">Not set yet</p>
 				<p>Serving to: <span id="hostSpan">not set yet</span></p>
@@ -419,7 +447,6 @@
 		</div>
     </ons-page>
   </script>
-
- 
+</div> 
 </body>
 </html>
