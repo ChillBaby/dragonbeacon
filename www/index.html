@@ -62,9 +62,18 @@
 			document.getElementById('btnCamera').style.backgroundColor = "#33CC33";
 			recordingOnGoing = false;
 		} else {
-			$.get(httpUrl + "/startRecording",function(data,status){
-				alert("Data: " + data + "\nStatus: " + status);
-			});
+			$.ajax({
+				url: httpUrl + "/startRecording",
+				type: "GET",
+				data: null,
+				success: function(data) {
+					updateConsole("[GET] " + watchUpdate +  ":" + data);
+				},
+				error: function( xhr, status, errorThrown ) {
+					updateConsole("[GET-ERR] " + watchUpdate +  ":" + errorThrown + " - Status: " + status + " " +  JSON.stringify(xhr, null, 2));
+				},
+				dataType: "text"
+			});	
 		
 		/*
 			$.get(httpUrl + "/startRecording", function(data){
