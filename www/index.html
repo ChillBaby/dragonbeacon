@@ -185,6 +185,54 @@
 		actionOnGoing = false;
 	}	
 	
+	function handleArm() {
+		if (actionOnGoing) {
+			updateConsole("[WARNING] Action ongoing!");
+			return;
+		}
+		actionOnGoing = true;
+		success = false;
+		if (currentState == "armed") {
+			$.get(httpUrl + "/disarmMotors",function(data,status){
+				if (status == 'success') {
+					$.get(httpUrl + "/releaseRC",function(data,status){
+						if (status == 'success') {
+							success = true;
+						}
+						if (success) {
+							updateStatus("Disarmed","black","normal");			
+							currentState = "disarmed";
+						} else {
+							updateConsole("[ERROR] Arm failed!");
+						}
+						updateFlightButtons();
+						actionOnGoing = false;
+					});
+				}
+			});
+		}  else if (currentState == "disarmed") {
+			$.get(httpUrl + "/setupRC",function(data,status){
+				if (status == 'success') {
+					$.get(httpUrl + "/armMotors",function(data,status){
+						if (status == 'success') {
+							success = true;
+						}
+						if (success) {
+							updateStatus("Armed","black","normal");			
+							currentState = "armed";
+						} else {
+							updateConsole("[ERROR] Disarm failed!");
+						}
+						updateFlightButtons();
+						actionOnGoing = false;
+					});
+				}
+			});
+		}
+	}
+
+	
+	
 	function loadSettings() {		
 		document.getElementById('inDroneurl').value = httpUrl;
 		document.getElementById('inDronerefreshrate').value = refreshRate;
@@ -312,7 +360,7 @@
         var db = window.openDatabase("dragonflyer", "1.0", "dragonflyer DB", 1000000);
 		db.transaction(initDB, errorCB);
     }  
-  
+	/*
 	function toggleArm() {		
 		if (droneArmSwitch.checked) {
 			currentTransition = "arming";			
@@ -321,7 +369,7 @@
 		}
 		transitionController();
 	}
-	
+	*/
 	function updateStatus(text, color, fontWeight) {
 		document.getElementById("drone_arm_switch").style.fontWeight = fontWeight;
 		document.getElementById("drone_arm_switch").style.color = color;
@@ -454,16 +502,8 @@
 	
 	function transitionController() {
 		//updateConsole("transitioning from " + currentState + " to " + currentTransition);
+		handleArmed();
 		currentState = currentTransition;
-		if (currentTransition == "arming") {
-			executeArming();
-		} else if (currentTransition == "armed") {
-			executeArmed();
-		} else if (currentTransition == "disarming") {
-			executeDisarming();
-		} else if (currentTransition == "disarmed") {
-			executeDisarmed();
-		}
 	}
 	
   </script>	
@@ -518,7 +558,7 @@
 					<div id="drone_arm_switch" style="float: left; color: black">Disarmed</div>
 					<div style="float: right; width: 10%">
 						<label class="switch switch--list-item">
-						  <input id="droneArmSwitch" type="checkbox" class="switch__input" onChange="toggleArm()">
+						  <input id="droneArmSwitch" type="checkbox" class="switch__input" onChange="handleArm()">
 						  <div class="switch__toggle"></div>
 						</label>
 					</div>
