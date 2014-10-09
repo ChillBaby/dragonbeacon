@@ -333,13 +333,9 @@
 			var httpUrl = "http://10.123.237.218:8080";
 			refreshRate = "1000";
 			logBufferSize = "2000";
-			alert('db start1');
 			tx.executeSql('INSERT INTO DRAGONFLYER (key, value) VALUES ("httpUrl", "' + httpUrl +'")');
-			alert('db start2');
 			tx.executeSql('INSERT INTO DRAGONFLYER (key, value) VALUES ("refreshrate", "' + refreshRate + '")');			
-			alert('db start3');
 			tx.executeSql('INSERT INTO DRAGONFLYER (key, value) VALUES ("logbuffer", "' +  logBufferSize + '")');
-			alert('db done');
 		} else {
 			for (var i=0; i<len; i++) {
 				updateConsole("INIT] Row = " + i + " KEY = " + results.rows.item(i).key + " value =  " + results.rows.item(i).value);		
@@ -475,6 +471,13 @@
 		if (activePage == 'home') {
 			document.getElementById("console_output").innerHTML = logBuffer;
 		}
+	}
+	
+	function onClickSave() {
+		httpUrl = document.getElementById("inDroneurl").value;
+		refreshRate = document.getElementById("inDronerefreshrate").value;
+		logBufferSize = document.getElementById("inDronelogbuffer").value;
+		updateConsole("[SAVED] httpURL:" + httpUrl + ", refreshRate:" + refreshRate + ", logBufferSize:" + logBufferSize);
 	}
   </script>	
 </head>
