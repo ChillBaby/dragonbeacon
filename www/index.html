@@ -51,12 +51,18 @@
 		actionOnGoing = true;
 		if (recordingOnGoing) {
 			
-			$.get(httpUrl + "/stopRecording", function(data){
-				alert("Data: " + data);
-				if (data.status == "OK") {
-					updateConsole("[MAVLINK] Armed");
-				}
-			});
+			$.ajax({
+				url: httpUrl + "/stopRecording",
+				type: "POST",
+				data: null,
+				success: function(data) {
+					updateConsole("[POST] " + watchUpdate +  ":" + data);
+				},
+				error: function( xhr, status, errorThrown ) {
+					updateConsole("[POST-ERR] " + httpUrl + "/stopRecording" + ", " + watchUpdate +  ":" + errorThrown + " - Status: " + status + " " +  JSON.stringify(xhr, null, 2));
+				},
+				dataType: "text"
+			});	
 			  
 			document.getElementById('btnCamera').innerHTML = 'Start Recording';
 			document.getElementById('btnCamera').style.backgroundColor = "#33CC33";
@@ -70,9 +76,9 @@
 					updateConsole("[GET] " + watchUpdate +  ":" + data);
 				},
 				error: function( xhr, status, errorThrown ) {
-					updateConsole("[GET-ERR] " + watchUpdate +  ":" + errorThrown + " - Status: " + status + " " +  JSON.stringify(xhr, null, 2));
+					updateConsole("[GET-ERR] " + httpUrl + "/startRecording" + ", " + watchUpdate +  ":" + errorThrown + " - Status: " + status + " " +  JSON.stringify(xhr, null, 2));
 				},
-				dataType: "text"
+				dataType: "json"
 			});	
 		
 		/*
