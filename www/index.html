@@ -49,93 +49,59 @@
 			return;
 		}
 		actionOnGoing = true;
+		success = false;
 		if (recordingOnGoing) {
-			
-			$.ajax({
-				url: httpUrl + "/stopRecording",
-				type: "POST",
-				data: null,
-				success: function(data) {
-					updateConsole("[POST] " + watchUpdate +  ":" + data);
-				},
-				error: function( xhr, status, errorThrown ) {
-					updateConsole("[POST-ERR] " + httpUrl + "/stopRecording" + ", " + watchUpdate +  ":" + errorThrown + " - Status: " + status + " " +  JSON.stringify(xhr, null, 2));
-				},
-				dataType: "text"
-			});	
-			  
-			document.getElementById('btnCamera').innerHTML = 'Start Recording';
-			document.getElementById('btnCamera').style.backgroundColor = "#33CC33";
-			recordingOnGoing = false;
-		} else {
-			$.ajax({
-				url: httpUrl + "/startRecording",
-				type: "GET",
-				data: null,
-				success: function(data) {
-					updateConsole("[GET] " + watchUpdate +  ":" + data);
-				},
-				error: function( xhr, status, errorThrown ) {
-					updateConsole("[GET-ERR] " + httpUrl + "/startRecording" + ", " + watchUpdate +  ":" + errorThrown + " - Status: " + status + " " +  JSON.stringify(xhr, null, 2));
-				},
-				dataType: "json"
-			});	
-		
-		/*
-			$.get(httpUrl + "/startRecording", function(data){
-				alert("Data: " + data);
-				if (data.status == "OK") {
-					updateConsole("[MAVLINK] Armed");
+			$.get(httpUrl + "/stopRecording",function(data,status){
+				if (status == 'success') {
+					success = true;
 				}
-			});*/
-			/*
-			$.ajax({
-				url: httpUrl + "/startRecording",
-				type: "GET",
-				//data: position,
-				success: function(data) {
-					updateConsole("[GET] " + watchUpdate +  ":" + data);
-				},
-				error: function( xhr, status, errorThrown ) {
-					updateConsole("[GET-ERR] " + watchUpdate +  ":" + errorThrown + " - Status: " + status + " " +  JSON.stringify(xhr, null, 2));
-				},
-				dataType: "text"
-			});		
-			*/
-
-			document.getElementById('btnCamera').innerHTML = 'Stop Recording';
-			document.getElementById('btnCamera').style.backgroundColor = "red";
-			recordingOnGoing = true;
+				if (success) {
+					document.getElementById('btnCamera').innerHTML = 'Start Recording';
+					document.getElementById('btnCamera').style.backgroundColor = "#33CC33";
+					recordingOnGoing = false;
+				} else {
+					updateConsole("[ERROR] StartRecording failed!");
+				}
+				updateFlightButtons();
+				actionOnGoing = false;
+			});
+		} else {
+			$.get(httpUrl + "/startRecording",function(data,status){
+				if (status == 'success') {
+					success = true;
+				}
+				if (success) {
+					document.getElementById('btnCamera').innerHTML = 'Stop Recording';
+					document.getElementById('btnCamera').style.backgroundColor = "red";
+					recordingOnGoing = true;
+				} else {
+					updateConsole("[ERROR] StartRecording failed!");
+				}
+				updateFlightButtons();
+				actionOnGoing = false;
+			});
 		}
-		actionOnGoing = false;
 	}
 	
-	function handleEmergency() {
-		
+	function handleEmergency() {		
 		if (actionOnGoing) {
 			updateConsole("[WARNING] Action ongoing!");
 			return;
 		}
 		actionOnGoing = true;
-		/*
-		$.get(httpUrl + "/land", function(data){
-			alert("Data: " + data);
-			if (data.status == "OK") {
-				updateConsole("[MAVLINK] Armed");
+		$.get(httpUrl + "/land",function(data,status){
+			if (!success) {
+				updateConsole("[ERROR] Emergency 'land' failed!");
 			}
+			$.get(httpUrl + "/releaseRC",function(data,status){
+				if (!success) {
+					updateConsole("[ERROR] Emergency 'releaseRC' failed!");
+				}
+			});
+			currentState = "disarmed";
+			updateFlightButtons();
+			actionOnGoing = false;
 		});
-		*/
-		/*
-		$.get(httpUrl + "/releaseRC", function(data){
-			alert("Data: " + data);
-			if (data.status == "OK") {
-				updateConsole("[MAVLINK] Armed");
-			}
-		});
-		*/
-		currentState = "disarmed";
-		updateFlightButtons();		
-		actionOnGoing = false;
 	}
 		
 	function handleFollowMe() {
@@ -145,25 +111,24 @@
 		}
 		actionOnGoing = true;
 		if ((currentState == "hoover") || (currentState == "loiter")) {
-			/*
-			$.get(httpUrl + "/followMe/?latitude=51.046015&longitude=3.687951&altitude=10", function(data){
-				alert("Data: " + data);
-				if (data.status == "OK") {
-					updateConsole("[MAVLINK] Armed");
-				}
-			});
-			*/
+			updateConsole("[FOLLOWME] Started");
 			currentState = "followme";
+			updateFlightButtons();
+			actionOnGoing = false;
 		} else if (currentState == "followme") {
-			/*
-			$.get(httpUrl + "/setMode/?mode=LOITER	", function(data){
-				alert("Data: " + data);
-				if (data.status == "OK") {
-					updateConsole("[MAVLINK] Armed");
+			$.get(httpUrl + "/setMode", "mode=LOITER",function(data,status){
+				if (status == 'success') {
+					success = true;
 				}
+				if (success) {
+					updateConsole("[FOLLOWME] Stopped");
+					currentState = "loiter";
+				} else {
+					updateConsole("[ERROR] StartRecording failed!");
+				}
+				updateFlightButtons();
+				actionOnGoing = false;
 			});
-			*/
-			currentState = "loiter";
 		}
 		updateFlightButtons();		
 		actionOnGoing = false;
@@ -175,29 +140,34 @@
 			return;
 		}
 		actionOnGoing = true;
+		success = false;
 		if (currentState == "armed") {
-			/*
-			$.get(httpUrl + "/takeoff", function(data){
-				alert("Data: " + data);
-				if (data.status == "OK") {
-					updateConsole("[MAVLINK] Armed");
+			$.get(httpUrl + "/takeoff",function(data,status){
+				if (status == 'success') {
+					success = true;
 				}
+				if (success) {
+					currentState = "hoover";
+				} else {
+					updateConsole("[ERROR] Hoover failed!");
+				}
+				updateFlightButtons();
+				actionOnGoing = false;
 			});
-			*/
-			currentState = "hoover";
 		}  else if ((currentState == "hoover") || (currentState == "loiter") || (currentState == "followme")) {
-			/*
-			$.get(httpUrl + "/land", function(data){
-				alert("Data: " + data);
-				if (data.status == "OK") {
-					updateConsole("[MAVLINK] Land");
+			$.get(httpUrl + "/land",function(data,status){
+				if (status == 'success') {
+					success = true;
 				}
+				if (success) {
+					currentState = "armed";
+				} else {
+					updateConsole("[ERROR] Arm failed!");
+				}
+				updateFlightButtons();
+				actionOnGoing = false;
 			});
-			*/
-			currentState = "armed";
 		}
-		updateFlightButtons();
-		actionOnGoing = false;
 	}	
 	
 	function handleArm() {
@@ -249,8 +219,6 @@
 			});
 		}
 	}
-
-	
 	
 	function loadSettings() {		
 		document.getElementById('inDroneurl').value = httpUrl;
@@ -340,8 +308,11 @@
 		lastPosition = position;
 		if (activePage == 'location') { loadLocation(); };
 		watchUpdate += 1;
-		//doHttpGetCall(position, watchUpdate - 1);
-		updateConsole("[OK] geoLocation - point " + watchUpdate);
+		if (currentState == 'followme') {
+			doHttpGetCall(position, watchUpdate - 1);
+		} else {
+			updateConsole("[GPS] lat:" + lat + ", lon:" + lon + ", alt" + alt);
+		}
     }
 	
 	// onError Callback receives a PositionError object
@@ -351,17 +322,22 @@
     }
 	
 	function doHttpGetCall(position, idx) {
-     	$.ajax({
-			url: httpUrl + "/updatePosition/",
-			type: "POST",
-			data: position,
-			success: function(data) {
-				updateConsole("[POST] " + idx +  ":" + data);
-			},
-			error: function( xhr, status, errorThrown ) {
-				updateConsole("[POST-ERR] " + idx +  ":" + errorThrown + " - Status: " + status + " " +  JSON.stringify(xhr, null, 2));
-			},
-			dataType: "text"
+	
+		lat = lastPosition.coords.latitude;
+		lon = lastPosition.coords.longitude;
+		alt = lastPosition.coords.altitude;
+	
+		$.get(httpUrl + "/followMe", "latitude=" + lat + "&longitude=" + lon + "&altitude=" + alt,function(data,status){
+			if (status == 'success') {
+				success = true;
+			}
+			if (success) {
+				updateConsole("[FOLLOWME] lat:" + lat + ", lon:" + lon + ", alt" + alt);
+			} else {
+				updateConsole("[FOLLOWME-ERR] POST failed!");
+			}
+			updateFlightButtons();
+			actionOnGoing = false;
 		});
     }
 	
@@ -379,42 +355,13 @@
         var db = window.openDatabase("dragonflyer", "1.0", "dragonflyer DB", 1000000);
 		db.transaction(initDB, errorCB);
     }  
-	/*
-	function toggleArm() {		
-		if (droneArmSwitch.checked) {
-			currentTransition = "arming";			
-		} else {
-			currentTransition = "disarming";			
-		}
-		transitionController();
-	}
-	*/
+
 	function updateStatus(text, color, fontWeight) {
 		document.getElementById("drone_arm_switch").style.fontWeight = fontWeight;
 		document.getElementById("drone_arm_switch").style.color = color;
 		document.getElementById("drone_arm_switch").innerHTML = text;
 	}
 
-	/*
-	* Event/state changes
-	*/
-	function executeArming() {
-		updateStatus("Arming...","black","normal");
-		currentTransition = "armed";
-		transitionController();
-	}
-	
-	function executeArmed() {
-		updateStatus("Armed","black","normal");
-		updateFlightButtons();
-	}
-	
-	function executeDisarming() {
-		updateStatus("Disarming...","black","normal");
-		currentTransition = "disarmed";
-		transitionController();
-	}
-	
 	function updateFlightButtons() {
 		if (recordingOnGoing) {
 			document.getElementById('drone_arm_switch').innerHTML = 'Armed <strong><font size="1" color="red">[RECORDING]</font></strong>';
@@ -504,11 +451,6 @@
 		}
 	}
 	
-	function executeDisarmed() {
-		updateStatus("Disarmed","#C0C0C0","normal");
-		updateFlightButtons();
-	}
-
 	function updateConsole(consoleText) {
 		logBuffer = consoleText + '\r' + logBuffer;
 		if (logBuffer.length > parseInt(logBufferSize)) {
@@ -518,16 +460,8 @@
 			document.getElementById("console_output").innerHTML = logBuffer;
 		}
 	}
-	
-	function transitionController() {
-		//updateConsole("transitioning from " + currentState + " to " + currentTransition);
-		handleArmed();
-		currentState = currentTransition;
-	}
-	
   </script>	
 </head>
-
 <body>    
 <div>
 
@@ -595,7 +529,6 @@
 			<ons-col>
 				<div id="main_controller" style="width:100%">
 					<button id="btnHoover" class="button--cta" style="width:95%; align: center; margin: 5px" onClick="handleHoover()" disabled>Hoover</button>
-					<!--button id="btnLand" class="button--cta" style="width:95%; align: center; margin: 5px"  disabled>Land</button-->
 					<button id="btnFollowMe" class="button--cta" style="width:95%; height:150px;  background-color: gray;align: center; margin: 5px"  onClick="handleFollowMe()" disabled>Start Follow</button>
 					<div style="height: 5px"></div>
 					<button id="btnEmergency" class="button--cta" style="width:95%; height: 150px; background-color: darkgray; align: center; margin: 5px" onClick="handleEmergency()" disabled>Emergency stop</button>
