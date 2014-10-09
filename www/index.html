@@ -296,7 +296,7 @@
 		var len = results.rows.length;
 		updateConsole("[INIT] DRAGONFLYER table: " + len + " rows found.");
 		if (len == 0) {
-			httpUrl = "http://localhost:80/testgets.php";
+			httpUrl = "http://10.1.119.26:8080";
 			refreshRate = "1000";
 			logBufferSize = "2000";
 			tx.executeSql('INSERT INTO DRAGONFLYER (key, value) VALUES ("httpUrl", "' + httpUrl +'")');
