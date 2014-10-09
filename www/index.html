@@ -62,8 +62,7 @@
 				} else {
 					updateConsole("[ERROR] StartRecording failed!");
 				}
-				updateFlightButtons();
-				actionOnGoing = false;
+				actionOnGoing = false;    
 			});
 		} else {
 			$.get(httpUrl + "/startRecording",function(data,status){
@@ -77,7 +76,6 @@
 				} else {
 					updateConsole("[ERROR] StartRecording failed!");
 				}
-				updateFlightButtons();
 				actionOnGoing = false;
 			});
 		}
