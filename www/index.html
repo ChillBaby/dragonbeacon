@@ -26,7 +26,8 @@
 	var watchID = null;
 	var watchUpdate = 1;
 	//var httpUrl = "http://localhost/testgets.php";
-	var httpUrl = "http://10.1.119.26:8080";
+	//var httpUrl = "http://10.1.119.26:8080";
+	var httpUrl = "http://10.123.237.218:8080";
 	var refreshRate = "";
 	var logBufferSize = "";
 	var activePage = "home";
@@ -262,7 +263,8 @@
 		var len = results.rows.length;
 		updateConsole("[INIT] DRAGONFLYER table: " + len + " rows found.");
 		if (len == 0) {
-			httpUrl = "http://10.1.119.26:8080";
+			//httpUrl = "http://10.1.119.26:8080";
+			var httpUrl = "http://10.123.237.218:8080";
 			refreshRate = "1000";
 			logBufferSize = "2000";
 			tx.executeSql('INSERT INTO DRAGONFLYER (key, value) VALUES ("httpUrl", "' + httpUrl +'")');
