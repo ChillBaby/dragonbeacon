@@ -20,19 +20,13 @@
   
   <script>
   
-  /*
-{
-    "status": "OK"
-}  
-  
-  */
-  
     // init vars
 	var currentState = "disarmed";
 	var currentTransition = "none";
 	var watchID = null;
 	var watchUpdate = 1;
-	var httpUrl = "http://localhost/testgets.php";
+	//var httpUrl = "http://localhost/testgets.php";
+	var httpUrl = "http://10.1.119.26:8080";
 	var refreshRate = "";
 	var logBufferSize = "";
 	var activePage = "home";
@@ -56,18 +50,24 @@
 		}
 		actionOnGoing = true;
 		if (recordingOnGoing) {
-			/*
+			
 			$.get(httpUrl + "/stopRecording", function(data){
 				alert("Data: " + data);
 				if (data.status == "OK") {
 					updateConsole("[MAVLINK] Armed");
 				}
 			});
-			*/
+			
 			document.getElementById('btnCamera').innerHTML = 'Start Recording';
 			document.getElementById('btnCamera').style.backgroundColor = "#33CC33";
 			recordingOnGoing = false;
 		} else {
+			$.get(httpUrl + "/startRecording", function(data){
+				alert("Data: " + data);
+				if (data.status == "OK") {
+					updateConsole("[MAVLINK] Armed");
+				}
+			});
 			/*
 			$.ajax({
 				url: httpUrl + "/startRecording",
@@ -82,14 +82,7 @@
 				dataType: "text"
 			});		
 			*/
-			/*
-			$.get(httpUrl + "/startRecording", function(data){
-				alert("Data: " + data);
-				if (data.status == "OK") {
-					updateConsole("[MAVLINK] Armed");
-				}
-			});
-			*/
+
 			document.getElementById('btnCamera').innerHTML = 'Stop Recording';
 			document.getElementById('btnCamera').style.backgroundColor = "red";
 			recordingOnGoing = true;
@@ -484,7 +477,8 @@
     </ons-tabbar-item>
 
     <ons-tabbar-item
-	  onclick="loadCamera()"
+	  onclick="
+	  loadCamera()"
       label="Camera"
       icon="ion-images"
       page="page2.html">
