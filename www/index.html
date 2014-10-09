@@ -264,42 +264,7 @@
 		}
 		activePage='camera';
 	}
-	// init database 
-	//
-	function querySuccess(tx, results) {	
-		var len = results.rows.length;
-		updateConsole("[INIT] DRAGONFLYER table: " + len + " rows found.");
-		if (len == 0) {
-			//httpUrl = "http://10.1.119.26:8080";
-			var httpUrl = "http://10.123.237.218:8080";
-			refreshRate = "1000";
-			logBufferSize = "2000";
-			tx.executeSql('INSERT INTO DRAGONFLYER (key, value) VALUES ("httpUrl", "' + httpUrl +'")');
-			tx.executeSql('INSERT INTO DRAGONFLYER (key, value) VALUES ("refreshrate", "' + refreshRate + '")');			
-			tx.executeSql('INSERT INTO DRAGONFLYER (key, value) VALUES ("logbuffer", "' +  logBufferSize + '")');			
-		} else {
-			for (var i=0; i<len; i++) {
-				updateConsole("INIT] Row = " + i + " KEY = " + results.rows.item(i).key + " value =  " + results.rows.item(i).value);		
-				if (results.rows.item(i).key == "httpUrl") {
-				    httpUrl = results.rows.item(i).value;
-				} else if (results.rows.item(i).key == "refreshrate") {
-				    refershRate = results.rows.item(i).value;
-				} else {
-				    logBufferSize = results.rows.item(i).value;
-				}
-			}	
-		}
-		updateConsole("[INIT] loaded settings");
-		if (activepage == 'settings') { loadSettings(); };
-	}
 
-    // Populate the database 
-    //
-    function initDB(tx) {
-        tx.executeSql('CREATE TABLE IF NOT EXISTS DRAGONFLYER (key unique, value)');
-		tx.executeSql('SELECT * FROM DRAGONFLYER', [], querySuccess, errorCB);
-    }
-	
 	// Initialize application
 	//
 	function initApp() {
@@ -352,6 +317,50 @@
     //
     function errorCB(err) {
 		updateConsole("[ERROR] appDB - message:" + err);
+    }
+	
+	function successCB() {
+		updateConsole("[OK] appDB - init");
+	}
+	
+	// init database 
+	//
+	function querySuccess(tx, results) {	
+		var len = results.rows.length;
+		updateConsole("[INIT] DRAGONFLYER table: " + len + " rows found.");
+		if (len == 0) {
+			//httpUrl = "http://10.1.119.26:8080";
+			var httpUrl = "http://10.123.237.218:8080";
+			refreshRate = "1000";
+			logBufferSize = "2000";
+			alert('db start1');
+			tx.executeSql('INSERT INTO DRAGONFLYER (key, value) VALUES ("httpUrl", "' + httpUrl +'")');
+			alert('db start2');
+			tx.executeSql('INSERT INTO DRAGONFLYER (key, value) VALUES ("refreshrate", "' + refreshRate + '")');			
+			alert('db start3');
+			tx.executeSql('INSERT INTO DRAGONFLYER (key, value) VALUES ("logbuffer", "' +  logBufferSize + '")');
+			alert('db done');
+		} else {
+			for (var i=0; i<len; i++) {
+				updateConsole("INIT] Row = " + i + " KEY = " + results.rows.item(i).key + " value =  " + results.rows.item(i).value);		
+				if (results.rows.item(i).key == "httpUrl") {
+				    httpUrl = results.rows.item(i).value;
+				} else if (results.rows.item(i).key == "refreshrate") {
+				    refershRate = results.rows.item(i).value;
+				} else {
+				    logBufferSize = results.rows.item(i).value;
+				}
+			}	
+		}
+		updateConsole("[INIT] loaded settings");
+		if (activepage == 'settings') { loadSettings(); };
+	}
+
+    // Populate the database 
+    //
+    function initDB(tx) {
+        tx.executeSql('CREATE TABLE IF NOT EXISTS DRAGONFLYER (key unique, value)');
+		tx.executeSql('SELECT * FROM DRAGONFLYER', [], querySuccess, errorCB);
     }
 	
     // PhoneGap is loaded and it is now safe to make calls PhoneGap methods
