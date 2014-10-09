@@ -110,10 +110,19 @@
 		}
 		actionOnGoing = true;
 		if ((currentState == "hoover") || (currentState == "loiter")) {
-			updateConsole("[FOLLOWME] Started");
-			currentState = "followme";
-			updateFlightButtons();
-			actionOnGoing = false;
+			$.get(httpUrl + "/readyForFollowMe", function(data,status){
+				if (status == 'success') {
+					success = true;
+				}
+				if (success) {
+					updateConsole("[READYFORFOLLOWME] Startedt");
+					currentState = "followme";
+				} else {
+					updateConsole("[ERROR] StartRecording failed!");
+				}
+				updateFlightButtons();
+				actionOnGoing = false;
+			});
 		} else if (currentState == "followme") {
 			$.get(httpUrl + "/setMode", "mode=LOITER",function(data,status){
 				if (status == 'success') {
@@ -129,8 +138,6 @@
 				actionOnGoing = false;
 			});
 		}
-		updateFlightButtons();		
-		actionOnGoing = false;
 	}
 		
 	function handleHoover() {
