@@ -62,12 +62,17 @@
 			document.getElementById('btnCamera').style.backgroundColor = "#33CC33";
 			recordingOnGoing = false;
 		} else {
+			$.get(httpUrl + "/startRecording",function(data,status){
+				alert("Data: " + data + "\nStatus: " + status);
+			});
+		
+		/*
 			$.get(httpUrl + "/startRecording", function(data){
 				alert("Data: " + data);
 				if (data.status == "OK") {
 					updateConsole("[MAVLINK] Armed");
 				}
-			});
+			});*/
 			/*
 			$.ajax({
 				url: httpUrl + "/startRecording",
