@@ -208,6 +208,8 @@
 						updateFlightButtons();
 						actionOnGoing = false;
 					});
+				} else {
+					updateConsole("[ERROR] Arm failed!");
 				}
 			});
 		}  else if (currentState == "disarmed") {
@@ -226,6 +228,8 @@
 						updateFlightButtons();
 						actionOnGoing = false;
 					});
+				} else {
+					updateConsole("[ERROR] Arm failed!");
 				}
 			});
 		}
