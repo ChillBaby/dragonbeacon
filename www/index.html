@@ -27,7 +27,8 @@
 	var watchUpdate = 1;
 	//var httpUrl = "http://localhost/testgets.php";
 	//var httpUrl = "http://10.1.119.26:8080";
-	var httpUrl = "http://10.123.237.218:8080";
+	//var httpUrl = "http://10.123.237.218:8080";
+	var httpUrl = "http://192.168.10.1:8080";
 	var refreshRate = "";
 	var logBufferSize = "";
 	var activePage = "home";
@@ -299,12 +300,12 @@
 		lon = lastPosition.coords.longitude;
 		alt = lastPosition.coords.altitude;
 	
-		$.get(httpUrl + "/followMe", "latitude=" + lat + "&longitude=" + lon + "&altitude=" + alt,function(data,status){
+		$.get(httpUrl + "/followMe", "latitude=" + lat + "&longitude=" + lon + "&altitude=10" ,function(data,status){
 			if (status == 'success') {
 				success = true;
 			}
 			if (success) {
-				updateConsole("[FOLLOWME] lat:" + lat + ", lon:" + lon + ", alt" + alt);
+				updateConsole("[FOLLOWME] lat:" + lat + ", lon:" + lon + ", alt:10/" + alt);
 			} else {
 				updateConsole("[FOLLOWME-ERR] POST failed!");
 			}
@@ -330,7 +331,8 @@
 		updateConsole("[INIT] DRAGONFLYER table: " + len + " rows found.");
 		if (len == 0) {
 			//httpUrl = "http://10.1.119.26:8080";
-			var httpUrl = "http://10.123.237.218:8080";
+			//var httpUrl = "http://10.123.237.218:8080";
+			var httpUrl = "http://192.168.10.1:8080";
 			refreshRate = "1000";
 			logBufferSize = "2000";
 			tx.executeSql('INSERT INTO DRAGONFLYER (key, value) VALUES ("httpUrl", "' + httpUrl +'")');
